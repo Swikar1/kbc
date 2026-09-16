@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Moving Polka Dot Background</title>
+<style>
+  :root {
+    --bg-color: #ffffff;
+    --dot-color: #2563eb;
+    --tile-size: 250px;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    background: var(--bg-color);
+  }
+
+  .polka-bg {
+    position: fixed;
+    inset: 0;
+    background-color: var(--bg-color);
+    background-repeat: repeat;
+    background-size: var(--tile-size) var(--tile-size);
+    animation: drift 35s linear infinite;
+  }
+
+  /* Moves the tiled background to the right, so dots drift left -> right */
+  @keyframes drift {
+    from { background-position: 0 0; }
+    to   { background-position: 250px 0; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="polka-bg" id="polkaBg"></div>
+
+  <script>
+    // Build a seamlessly-tileable canvas with a "semi-scattered" pattern:
+    // a grid of cells, each holding one dot nudged by a random jitter.
+    // This keeps roughly even coverage while avoiding a rigid, aligned look.
+    const tileSize = 250;
+    const cellSize = 22;        // base spacing between dots
+    const jitter = 8;           // max random offset from the cell center
+    const dotColor = '#2563eb';
+
+    const canvas = document.createElement('canvas');
+    canvas.width = tileSize;
+    canvas.height = tileSize;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = dotColor;
+
+    function drawDot(x, y, r) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const cols = Math.round(tileSize / cellSize);
+    const rows = Math.round(tileSize / cellSize);
+
+    for (let cx = 0; cx < cols; cx++) {
+      for (let cy = 0; cy < rows; cy++) {
+        const baseX = cx * cellSize + cellSize / 2;
+        const baseY = cy * cellSize + cellSize / 2;
+        const x = baseX + (Math.random() - 0.5) * jitter * 2;
+        const y = baseY + (Math.random() - 0.5) * jitter * 2;
+        const r = 1 + Math.random() * 1.3;
+
+        // Draw wrap-around copies at the tile edges so the pattern
+        // repeats seamlessly with no visible seams
+        drawDot(x, y, r);
+        drawDot(x - tileSize, y, r);
+        drawDot(x + tileSize, y, r);
+        drawDot(x, y - tileSize, r);
+        drawDot(x, y + tileSize, r);
+        drawDot(x - tileSize, y - tileSize, r);
+        drawDot(x + tileSize, y - tileSize, r);
+        drawDot(x - tileSize, y + tileSize, r);
+        drawDot(x + tileSize, y + tileSize, r);
+      }
+    }
+
+    const dataUrl = canvas.toDataURL();
+    document.getElementById('polkaBg').style.backgroundImage = 'url(' + dataUrl + ')';
+  </script>
+
+</body>
+</html>
