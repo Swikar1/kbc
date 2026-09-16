@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trivia Challenge</title>
+<style>
+  :root {
+    --bg-color: #ffffff;
+    --dot-color: #2563eb;
+    --tile-size: 250px;
+    --text-main: #1e293b;
+    --text-sub: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #ef4444;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --border: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100%;
+    width: 100%;
+    background: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+  }
+
+  .polka-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: #f8fbff;
+    background-image: radial-gradient(circle, rgba(37, 99, 235, 0.9) 1.6px, transparent 1.9px),
+                      radial-gradient(circle, rgba(147, 197, 253, 0.9) 1.6px, transparent 1.9px);
+    background-position: 0 0, 17px 17px;
+    background-size: 34px 34px;
+    background-repeat: repeat;
+    animation: drift 18s linear infinite;
+  }
+  @keyframes drift {
+    from { background-position: 0 0, 17px 17px; }
+    to   { background-position: 34px 0, 51px 17px; }
+  }
+
+  .wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 22px;
+    box-shadow: 0 12px 44px rgba(30,41,59,0.14);
+    padding: 30px 28px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+  }
+
+  .progress-bar-track {
+    width: 100%;
+    height: 5px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .question-box {
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 4px 4px 24px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-main);
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .option-btn:active:not(:disabled) { transform: scale(0.98); }
+  .option-btn:disabled { cursor: default; }
+
+  .option-letter {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .option-btn.correct { background: var(--green-bg); border-color: var(--green-border); color: #166534; }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.incorrect { background: var(--red-bg); border-color: var(--red-border); color: #991b1b; }
+  .option-btn.incorrect .option-letter { background: var(--red); color: #fff; }
+
+  .timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .timer-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .timer-circle.running { border-color: var(--accent); color: var(--accent-dark); }
+  .timer-circle.warning { border-color: var(--red); color: var(--red); }
+
+  .timer-btn {
+    border: none;
+    background: #f1f5f9;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  .timer-btn:hover:not(:disabled) { filter: brightness(0.95); }
+  .timer-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .btn-next {
+    width: 100%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.05s ease;
+  }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-next:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-next:disabled { opacity: 0.5; cursor: default; }
+
+  .score-box { text-align: center; }
+  .score-box h2 { font-size: 1.5rem; margin-bottom: 10px; }
+  .score-box p { color: var(--text-sub); margin-bottom: 22px; font-size: 1rem; }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .question-box { font-size: 1.05rem; min-height: 70px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="polka-bg" id="polkaBg"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div id="quizArea">
+        <div class="card-top">
+          <span class="progress-text" id="progressText">1 / 10</span>
+          <span class="progress-text" id="tierText">Tier 1</span>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+        <div class="question-box" id="questionBox"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <div class="timer-row">
+          <div class="timer-circle" id="timerCircle">30</div>
+          <button class="timer-btn" id="timerBtn">Start Timer</button>
+        </div>
+
+        <button class="btn-next" id="nextBtn" disabled>Next</button>
+      </div>
+
+      <div class="score-box" id="scoreBox" style="display:none;">
+        <h2>Done!</h2>
+        <p id="finalScoreText"></p>
+        <button class="btn-next" id="restartBtn">New Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- visible polka-dot background ---------- */
+    (function buildBackground() {
+      const bg = document.getElementById('polkaBg');
+      if (!bg) return;
+      bg.style.backgroundColor = '#f8fbff';
+      bg.style.backgroundImage = 'radial-gradient(circle, rgba(37, 99, 235, 0.9) 1.6px, transparent 1.9px), radial-gradient(circle, rgba(147, 197, 253, 0.9) 1.6px, transparent 1.9px)';
+      bg.style.backgroundPosition = '0 0, 17px 17px';
+      bg.style.backgroundSize = '34px 34px';
+      bg.style.backgroundRepeat = 'repeat';
+    })();
+
+    /* ---------- quiz data ---------- */
+    const QUIZ_DATA = [
+      { tier: 1, questions: [
+        { q: 'Who painted the Mona Lisa?', options: ['Leonardo da Vinci', 'Michelangelo', 'Raphael', 'Vincent van Gogh'], correct: 'A', answer_text: 'Leonardo da Vinci' },
+        { q: 'What is the chemical symbol for gold?', options: ['Au', 'Ag', 'Cu', 'Fe'], correct: 'A', answer_text: 'Au' },
+        { q: 'What is the boiling point of water at sea level?', options: ['100?C', '90?C', '110?C', '80?C'], correct: 'A', answer_text: '100?C' },
+        { q: 'Which planet is known as the Red Planet?', options: ['Mars', 'Venus', 'Jupiter', 'Mercury'], correct: 'A', answer_text: 'Mars' }
+      ]},
+      { tier: 2, questions: [
+        { q: 'What is the capital of France?', options: ['Paris', 'Rome', 'Berlin', 'Madrid'], correct: 'A', answer_text: 'Paris' },
+        { q: 'Who wrote Pride and Prejudice?', options: ['Jane Austen', 'Charles Dickens', 'Emily Bront?', 'George Orwell'], correct: 'A', answer_text: 'Jane Austen' },
+        { q: 'Which ocean is the largest?', options: ['Pacific Ocean', 'Atlantic Ocean', 'Indian Ocean', 'Arctic Ocean'], correct: 'A', answer_text: 'Pacific Ocean' },
+        { q: 'Which gas do plants absorb from the atmosphere?', options: ['Carbon dioxide', 'Oxygen', 'Nitrogen', 'Hydrogen'], correct: 'A', answer_text: 'Carbon dioxide' }
+      ]},
+      { tier: 3, questions: [
+        { q: 'Which organ pumps blood around the body?', options: ['Heart', 'Lungs', 'Liver', 'Brain'], correct: 'A', answer_text: 'Heart' },
+        { q: 'What is the powerhouse of the cell?', options: ['Mitochondria', 'Nucleus', 'Ribosome', 'Cell membrane'], correct: 'A', answer_text: 'Mitochondria' },
+        { q: 'Which animal is the fastest land mammal?', options: ['Cheetah', 'Leopard', 'Horse', 'Gazelle'], correct: 'A', answer_text: 'Cheetah' },
+        { q: 'Which instrument has 88 keys?', options: ['Piano', 'Violin', 'Flute', 'Trumpet'], correct: 'A', answer_text: 'Piano' }
+      ]},
+      { tier: 4, questions: [
+        { q: 'Who discovered penicillin?', options: ['Alexander Fleming', 'Isaac Newton', 'Marie Curie', 'Albert Einstein'], correct: 'A', answer_text: 'Alexander Fleming' },
+        { q: 'Which country is home to the city of Kyoto?', options: ['Japan', 'China', 'South Korea', 'Thailand'], correct: 'A', answer_text: 'Japan' },
+        { q: 'What is the largest desert in the world?', options: ['Antarctic Desert', 'Sahara Desert', 'Arabian Desert', 'Gobi Desert'], correct: 'A', answer_text: 'Antarctic Desert' },
+        { q: 'Which metal is liquid at room temperature?', options: ['Mercury', 'Iron', 'Copper', 'Silver'], correct: 'A', answer_text: 'Mercury' }
+      ]},
+      { tier: 5, questions: [
+        { q: 'Which planet is closest to the Sun?', options: ['Mercury', 'Venus', 'Mars', 'Earth'], correct: 'A', answer_text: 'Mercury' },
+        { q: 'What is H2O commonly known as?', options: ['Water', 'Salt', 'Oxygen', 'Hydrogen'], correct: 'A', answer_text: 'Water' },
+        { q: 'Which language has the most native speakers?', options: ['Mandarin Chinese', 'English', 'Spanish', 'Hindi'], correct: 'A', answer_text: 'Mandarin Chinese' },
+        { q: 'Who painted The Starry Night?', options: ['Vincent van Gogh', 'Pablo Picasso', 'Claude Monet', 'Edgar Degas'], correct: 'A', answer_text: 'Vincent van Gogh' }
+      ]},
+      { tier: 6, questions: [
+        { q: 'What is the smallest prime number?', options: ['2', '1', '3', '5'], correct: 'A', answer_text: '2' },
+        { q: 'Which bird is famous for mimicking human speech?', options: ['Parrot', 'Eagle', 'Owl', 'Penguin'], correct: 'A', answer_text: 'Parrot' },
+        { q: 'Which is the tallest mammal?', options: ['Giraffe', 'Elephant', 'Horse', 'Camel'], correct: 'A', answer_text: 'Giraffe' },
+        { q: 'Which country hosted the 2016 Summer Olympics?', options: ['Brazil', 'China', 'United Kingdom', 'Japan'], correct: 'A', answer_text: 'Brazil' }
+      ]},
+      { tier: 7, questions: [
+        { q: 'Which river is the longest in the world?', options: ['Amazon River', 'Nile River', 'Yangtze River', 'Mississippi River'], correct: 'A', answer_text: 'Amazon River' },
+        { q: 'Which sea creature has eight arms?', options: ['Octopus', 'Shark', 'Dolphin', 'Turtle'], correct: 'A', answer_text: 'Octopus' },
+        { q: 'What does CPU stand for?', options: ['Central Processing Unit', 'Computer Personal Unit', 'Central Power Unit', 'Core Processing Utility'], correct: 'A', answer_text: 'Central Processing Unit' },
+        { q: 'Which country is the largest by land area?', options: ['Russia', 'Canada', 'China', 'United States'], correct: 'A', answer_text: 'Russia' }
+      ]},
+      { tier: 8, questions: [
+        { q: 'What is the main ingredient in guacamole?', options: ['Avocado', 'Tomato', 'Potato', 'Onion'], correct: 'A', answer_text: 'Avocado' },
+        { q: 'Which body part is the femur?', options: ['Thigh bone', 'Skull bone', 'Rib', 'Forearm bone'], correct: 'A', answer_text: 'Thigh bone' },
+        { q: 'Which organ is responsible for filtering blood?', options: ['Kidneys', 'Lungs', 'Stomach', 'Pancreas'], correct: 'A', answer_text: 'Kidneys' },
+        { q: 'What is the freezing point of water in Celsius?', options: ['0?C', '100?C', '25?C', '-10?C'], correct: 'A', answer_text: '0?C' }
+      ]},
+      { tier: 9, questions: [
+        { q: 'Who was the first person to walk on the Moon?', options: ['Neil Armstrong', 'Buzz Aldrin', 'Yuri Gagarin', 'John Glenn'], correct: 'A', answer_text: 'Neil Armstrong' },
+        { q: 'Which hormone is known as the stress hormone?', options: ['Cortisol', 'Insulin', 'Adrenaline', 'Thyroxine'], correct: 'A', answer_text: 'Cortisol' },
+        { q: 'Which continent is the Sahara Desert in?', options: ['Africa', 'Asia', 'Australia', 'South America'], correct: 'A', answer_text: 'Africa' },
+        { q: 'Which artist created the sculpture David?', options: ['Michelangelo', 'Leonardo da Vinci', 'Raphael', 'Donatello'], correct: 'A', answer_text: 'Michelangelo' }
+      ]},
+      { tier: 10, questions: [
+        { q: 'Which of these is a mammal?', options: ['Dolphin', 'Shark', 'Lizard', 'Frog'], correct: 'A', answer_text: 'Dolphin' },
+        { q: 'What is the square root of 81?', options: ['9', '8', '7', '10'], correct: 'A', answer_text: '9' },
+        { q: 'Which country has the most time zones?', options: ['France', 'United States', 'China', 'Australia'], correct: 'A', answer_text: 'France' },
+        { q: 'Which metal is used in most electrical wires?', options: ['Copper', 'Gold', 'Iron', 'Aluminum'], correct: 'A', answer_text: 'Copper' }
+      ]}
+    ];
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let session = [];
+    let sessionIdx = 0;
+    let score = 0;
+    let currentCorrectLetter = 'A';
+
+    function buildSession() {
+      // exactly one random question from each of the 10 tiers, in tier order
+      session = QUIZ_DATA.map(tierObj => {
+        const q = shuffle(tierObj.questions)[0];
+        return Object.assign({ tier: tierObj.tier }, q);
+      });
+      sessionIdx = 0;
+      score = 0;
+    }
+
+    const progressText = document.getElementById('progressText');
+    const tierText = document.getElementById('tierText');
+    const progressFill = document.getElementById('progressFill');
+    const questionBox = document.getElementById('questionBox');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const nextBtn = document.getElementById('nextBtn');
+    const quizArea = document.getElementById('quizArea');
+    const scoreBox = document.getElementById('scoreBox');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const restartBtn = document.getElementById('restartBtn');
+    const timerBtn = document.getElementById('timerBtn');
+    const timerCircle = document.getElementById('timerCircle');
+
+    function loadQuestion() {
+      if (sessionIdx >= session.length) {
+        showFinalScore();
+        return;
+      }
+      stopTimer();
+      nextBtn.disabled = true;
+
+      const item = session[sessionIdx];
+      progressText.textContent = (sessionIdx + 1) + ' / ' + session.length;
+      tierText.textContent = 'Tier ' + item.tier;
+      progressFill.style.width = (sessionIdx / session.length * 100) + '%';
+      questionBox.textContent = item.q;
+
+      const baseLetters = ['A','B','C','D'];
+      const shuffledLetters = shuffle(baseLetters);
+      const correctIndex = baseLetters.indexOf(item.correct);
+      currentCorrectLetter = shuffledLetters[correctIndex];
+
+      optionsGrid.innerHTML = '';
+      item.options.forEach((opt, i) => {
+        const letter = shuffledLetters[i];
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.dataset.letter = letter;
+        btn.innerHTML = '<span class="option-letter">' + letter + '</span><span>' + opt + '</span>';
+        btn.addEventListener('click', () => selectOption(letter, btn));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function selectOption(letter, btnEl) {
+      const allBtns = [...optionsGrid.children];
+      if (allBtns.some(b => b.disabled)) return; // already answered
+      allBtns.forEach(b => b.disabled = true);
+
+      const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
+      if (correctBtn) correctBtn.classList.add('correct');
+      if (letter !== currentCorrectLetter) {
+        btnEl.classList.add('incorrect');
+      } else {
+        score++;
+      }
+      stopTimer();
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      sessionIdx++;
+      loadQuestion();
+    });
+
+    function showFinalScore() {
+      quizArea.style.display = 'none';
+      scoreBox.style.display = 'block';
+      finalScoreText.textContent = 'Score: ' + score + ' / ' + session.length;
+    }
+
+    restartBtn.addEventListener('click', () => {
+      quizArea.style.display = 'block';
+      scoreBox.style.display = 'none';
+      buildSession();
+      loadQuestion();
+    });
+
+    /* ---------- independent 30s timer (always startable/stoppable) ---------- */
+    let timerInterval = null;
+    let timeLeft = 30;
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('running', 'warning');
+      timerBtn.disabled = false;
+      timerBtn.textContent = 'Start Timer';
+    }
+
+    function startTimer() {
+      if (timerInterval !== null) return;
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('warning');
+      timerCircle.classList.add('running');
+      timerBtn.disabled = true;
+      timerBtn.textContent = 'Running...';
+
+      timerInterval = setInterval(function () {
+        timeLeft = timeLeft - 1;
+        if (timeLeft <= 0) {
+          timerCircle.textContent = '0';
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerBtn.disabled = false;
+          timerBtn.textContent = 'Start Timer';
+          timerCircle.classList.remove('running');
+          return;
+        }
+        timerCircle.textContent = timeLeft;
+        if (timeLeft <= 10) {
+          timerCircle.classList.add('warning');
+        }
+      }, 1000);
+    }
+
+    timerBtn.addEventListener('click', startTimer);
+
+    /* ---------- init ---------- */
+    buildSession();
+    loadQuestion();
+  </script>
+
+</body>
+</html>
