@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trivia Challenge</title>
+<style>
+  :root {
+    --bg-color: #ffffff;
+    --dot-color: #2563eb;
+    --tile-size: 250px;
+    --text-main: #1e293b;
+    --text-sub: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #ef4444;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --border: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100%;
+    width: 100%;
+    background: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+  }
+
+  .polka-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-color: var(--bg-color);
+    background-repeat: repeat;
+    background-size: var(--tile-size) var(--tile-size);
+    animation: drift 35s linear infinite;
+  }
+  @keyframes drift {
+    from { background-position: 0 0; }
+    to   { background-position: 250px 0; }
+  }
+
+  .wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 22px;
+    box-shadow: 0 12px 44px rgba(30,41,59,0.14);
+    padding: 30px 28px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+  }
+
+  .progress-bar-track {
+    width: 100%;
+    height: 5px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .question-box {
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 4px 4px 24px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-main);
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .option-btn:active:not(:disabled) { transform: scale(0.98); }
+  .option-btn:disabled { cursor: default; }
+
+  .option-letter {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .option-btn.correct { background: var(--green-bg); border-color: var(--green-border); color: #166534; }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.incorrect { background: var(--red-bg); border-color: var(--red-border); color: #991b1b; }
+  .option-btn.incorrect .option-letter { background: var(--red); color: #fff; }
+
+  .timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .timer-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .timer-circle.running { border-color: var(--accent); color: var(--accent-dark); }
+  .timer-circle.warning { border-color: var(--red); color: var(--red); }
+
+  .timer-btn {
+    border: none;
+    background: #f1f5f9;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  .timer-btn:hover:not(:disabled) { filter: brightness(0.95); }
+  .timer-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .btn-next {
+    width: 100%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.05s ease;
+  }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-next:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-next:disabled { opacity: 0.5; cursor: default; }
+
+  .score-box { text-align: center; }
+  .score-box h2 { font-size: 1.5rem; margin-bottom: 10px; }
+  .score-box p { color: var(--text-sub); margin-bottom: 22px; font-size: 1rem; }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .question-box { font-size: 1.05rem; min-height: 70px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="polka-bg" id="polkaBg"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div id="quizArea">
+        <div class="card-top">
+          <span class="progress-text" id="progressText">1 / 10</span>
+          <span class="progress-text" id="tierText">Tier 1</span>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+        <div class="question-box" id="questionBox"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <div class="timer-row">
+          <div class="timer-circle" id="timerCircle">30</div>
+          <button class="timer-btn" id="timerBtn">Start Timer</button>
+        </div>
+
+        <button class="btn-next" id="nextBtn" disabled>Next</button>
+      </div>
+
+      <div class="score-box" id="scoreBox" style="display:none;">
+        <h2>Done!</h2>
+        <p id="finalScoreText"></p>
+        <button class="btn-next" id="restartBtn">New Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- background: jittered-grid scattered dot tile ---------- */
+    (function buildBackground() {
+      const tileSize = 250;
+      const cellSize = 22;
+      const jitter = 8;
+      const dotColor = '#2563eb';
+
+      const canvas = document.createElement('canvas');
+      canvas.width = tileSize;
+      canvas.height = tileSize;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = dotColor;
+
+      function drawDot(x, y, r) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const cols = Math.round(tileSize / cellSize);
+      const rows = Math.round(tileSize / cellSize);
+
+      for (let cx = 0; cx < cols; cx++) {
+        for (let cy = 0; cy < rows; cy++) {
+          const baseX = cx * cellSize + cellSize / 2;
+          const baseY = cy * cellSize + cellSize / 2;
+          const x = baseX + (Math.random() - 0.5) * jitter * 2;
+          const y = baseY + (Math.random() - 0.5) * jitter * 2;
+          const r = 1 + Math.random() * 1.3;
+
+          drawDot(x, y, r);
+          drawDot(x - tileSize, y, r);
+          drawDot(x + tileSize, y, r);
+          drawDot(x, y - tileSize, r);
+          drawDot(x, y + tileSize, r);
+          drawDot(x - tileSize, y - tileSize, r);
+          drawDot(x + tileSize, y - tileSize, r);
+          drawDot(x - tileSize, y + tileSize, r);
+          drawDot(x + tileSize, y + tileSize, r);
+        }
+      }
+
+      const dataUrl = canvas.toDataURL();
+      document.getElementById('polkaBg').style.backgroundImage = 'url(' + dataUrl + ')';
+    })();
+
+    /* ---------- quiz data ---------- */
+    const QUIZ_DATA = [{"tier": 1, "questions": [{"q": "Who painted the Mona Lisa?", "options": ["Leonardo da Vinci", "A divergent boundary", "Alpha decay", "The Second Law of Thermodynamics"], "correct": "A", "answer_text": "Leonardo da Vinci"}, {"q": "What is the chemical symbol for gold?", "options": ["Au", "The Ming Dynasty", "K", "Fe"], "correct": "A", "answer_text": "Au"}, {"q": "In what year did World War II end?", "options": ["1945", "1948", "1895", "1935"], "correct": "A", "answer_text": "1945"}, {"q": "What is the largest desert in the world?", "options": ["The Sahara", "Sri Lanka", "Iran", "China"], "correct": "A", "answer_text": "The Sahara"}, {"q": "What is the powerhouse of the cell?", "options": ["Time dilation", "An irrational number", "Metamorphic rock", "The mitochondria"], "correct": "D", "answer_text": "The mitochondria"}, {"q": "What does DNA stand for?", "options": ["A black hole", "Sumo wrestling", "Deoxyribonucleic acid", "A supernova"], "correct": "C", "answer_text": "Deoxyribonucleic acid"}, {"q": "Which country gifted the Statue of Liberty to the USA?", "options": ["The Mariana Trench", "The Ural Mountains", "France", "The Sahara"], "correct": "C", "answer_text": "France"}, {"q": "What is the boiling point of water in Celsius?", "options": ["Pair annihilation", "Sumo wrestling", "Time dilation", "100 degrees"], "correct": "D", "answer_text": "100 degrees"}, {"q": "What is the smallest country in the world?", "options": ["Vatican City", "The ancient Egyptians", "France", "Iran"], "correct": "A", "answer_text": "Vatican City"}, {"q": "How many bones are in the adult human body?", "options": ["207", "206", "186", "203"], "correct": "B", "answer_text": "206"}, {"q": "Who is known as the father of modern physics?", "options": ["Friedrich Nietzsche", "Albert Einstein", "Transcription", "Johannes Kepler"], "correct": "B", "answer_text": "Albert Einstein"}, {"q": "What is the study of earthquakes called?", "options": ["Seismology", "The Silk Road", "Salvador Dali", "Vitamin C"], "correct": "A", "answer_text": "Seismology"}, {"q": "Which planet is known as the Red Planet?", "options": ["Mitosis", "Genome", "Lead", "Mars"], "correct": "D", "answer_text": "Mars"}, {"q": "What is the national language of China?", "options": ["Alexander Fleming", "Adam Smith", "Mandarin Chinese", "Amylase"], "correct": "C", "answer_text": "Mandarin Chinese"}, {"q": "What ocean lies between America and Europe?", "options": ["Canada", "Jean-Jacques Rousseau", "The Grand Canyon", "The Atlantic Ocean"], "correct": "D", "answer_text": "The Atlantic Ocean"}, {"q": "What is the main gas found in the air we breathe?", "options": ["Karl Marx", "Nitrogen", "Alfred Russel Wallace", "Albert Einstein"], "correct": "B", "answer_text": "Nitrogen"}, {"q": "Who wrote the theory of evolution?", "options": ["Palindrome", "Becquerel", "Charles Darwin", "Beriberi"], "correct": "C", "answer_text": "Charles Darwin"}, {"q": "What is the largest mammal in the world?", "options": ["Blue whale", "The Treaty of Versailles", "The Lighthouse of Alexandria", "The Treaty of Portsmouth"], "correct": "A", "answer_text": "Blue whale"}, {"q": "What instrument measures atmospheric pressure?", "options": ["Marie Curie", "Constantine XI", "Barometer", "Hertz"], "correct": "C", "answer_text": "Barometer"}, {"q": "What is the currency of the United Kingdom?", "options": ["Time dilation", "Pound sterling", "The Battle of Manzikert", "Louis de Broglie"], "correct": "B", "answer_text": "Pound sterling"}, {"q": "How many hearts does an octopus have?", "options": ["23", "1", "3", "13"], "correct": "C", "answer_text": "3"}, {"q": "What is the fear of spiders called?", "options": ["Hammurabi", "Palindrome", "David Ricardo", "Arachnophobia"], "correct": "D", "answer_text": "Arachnophobia"}, {"q": "Which vitamin is produced when skin is exposed to sunlight?", "options": ["Vitamin D", "Wilhelm Rontgen", "Andromeda Galaxy", "Adam Smith"], "correct": "A", "answer_text": "Vitamin D"}, {"q": "What is the largest bone in the human body?", "options": ["Equilateral triangle", "Pair annihilation", "100 degrees", "The femur"], "correct": "D", "answer_text": "The femur"}, {"q": "What is the tallest waterfall in the world?", "options": ["Archaeology", "Angel Falls", "Mars", "Helmut Kohl"], "correct": "B", "answer_text": "Angel Falls"}, {"q": "Who was the first President of the United States?", "options": ["George Washington", "Titan", "Entomology", "Angel Falls"], "correct": "A", "answer_text": "George Washington"}, {"q": "Which element has the atomic number 1?", "options": ["Leo Tolstoy", "Kurt Godel", "Hydrogen", "Psychology"], "correct": "C", "answer_text": "Hydrogen"}, {"q": "What year did the Titanic sink?", "options": ["1912", "1909", "1911", "1932"], "correct": "A", "answer_text": "1912"}]}, {"tier": 2, "questions": [{"q": "Which country invented paper?", "options": ["China", "The Ottoman Empire", "Vatican City", "The Ural Mountains"], "correct": "A", "answer_text": "China"}, {"q": "What is the study of weather called?", "options": ["Mitosis", "Meteorology", "Cosmology", "The Andes"], "correct": "B", "answer_text": "Meteorology"}, {"q": "Who developed the theory of relativity?", "options": ["Albert Einstein", "Archaeology", "The Precambrian", "Salvador Dali"], "correct": "A", "answer_text": "Albert Einstein"}, {"q": "What is the capital of Canada?", "options": ["Mars", "Ottawa", "The Silk Road", "Hypertension"], "correct": "B", "answer_text": "Ottawa"}, {"q": "Which organ produces insulin?", "options": ["Metamorphic rock", "Event horizon", "Louis de Broglie", "The pancreas"], "correct": "D", "answer_text": "The pancreas"}, {"q": "What is the largest island in the world?", "options": ["Ohm", "Qin Shi Huang", "Seismology", "Greenland"], "correct": "D", "answer_text": "Greenland"}, {"q": "Which ancient civilization built the pyramids of Giza?", "options": ["Greece", "The Inca Empire", "Spain", "The ancient Egyptians"], "correct": "D", "answer_text": "The ancient Egyptians"}, {"q": "What is the SI unit of electric current?", "options": ["Margaret Thatcher", "Charles Darwin", "Proxima Centauri", "Ampere"], "correct": "D", "answer_text": "Ampere"}, {"q": "What is the chemical formula for table salt?", "options": ["NaCl", "Genetics", "The Andes", "Titan"], "correct": "A", "answer_text": "NaCl"}, {"q": "Who wrote '1984'?", "options": ["Queen Victoria", "Mao Zedong", "George Orwell", "Mount Kilimanjaro"], "correct": "C", "answer_text": "George Orwell"}, {"q": "What is the smallest bone in the human body?", "options": ["O negative", "The photon", "The stapes", "The Peace of Westphalia"], "correct": "C", "answer_text": "The stapes"}, {"q": "In which country did the Olympic Games originate?", "options": ["Jean-Jacques Rousseau", "Greece", "The Roman Empire", "The ancient Egyptians"], "correct": "B", "answer_text": "Greece"}, {"q": "What is the main component of the sun?", "options": ["Hydrogen", "Bromine", "Cleopatra VII", "Hammurabi"], "correct": "A", "answer_text": "Hydrogen"}, {"q": "What is the longest river in Asia?", "options": ["The Yangtze River", "The Roman Empire", "Sri Lanka", "Russia"], "correct": "A", "answer_text": "The Yangtze River"}, {"q": "What is the process by which plants make food called?", "options": ["The Ming Dynasty", "Photosynthesis", "Genghis Khan", "Proxima Centauri"], "correct": "B", "answer_text": "Photosynthesis"}, {"q": "Who painted 'The Starry Night'?", "options": ["The Battle of Waterloo", "The pancreas", "The aorta", "Vincent van Gogh"], "correct": "D", "answer_text": "Vincent van Gogh"}, {"q": "What year did the Berlin Wall fall?", "options": ["1987", "1988", "2039", "1989"], "correct": "D", "answer_text": "1989"}, {"q": "What is the deepest part of the ocean called?", "options": ["Iran", "The United States", "The Mariana Trench", "The asteroid belt"], "correct": "C", "answer_text": "The Mariana Trench"}, {"q": "What is the largest country in the world by area?", "options": ["Russia", "The ancient Egyptians", "Vatican City", "The Mariana Trench"], "correct": "A", "answer_text": "Russia"}, {"q": "What is the study of fossils called?", "options": ["The Mohorovicic discontinuity", "An endothermic reaction", "Leonardo da Vinci", "Paleontology"], "correct": "D", "answer_text": "Paleontology"}, {"q": "Who is credited with inventing the telephone?", "options": ["Alexander Graham Bell", "Friedrich Nietzsche", "Extinct", "Mount Kilimanjaro"], "correct": "A", "answer_text": "Alexander Graham Bell"}, {"q": "What is the national sport of Japan?", "options": ["The aorta", "Sumo wrestling", "The First Opium War", "A galactic merger"], "correct": "B", "answer_text": "Sumo wrestling"}, {"q": "What is the chemical symbol for iron?", "options": ["An irrational number", "Au", "K", "Fe"], "correct": "D", "answer_text": "Fe"}, {"q": "In which year did the French Revolution begin?", "options": ["1809", "1789", "1769", "1784"], "correct": "B", "answer_text": "1789"}, {"q": "Who composed the 'Ninth Symphony'?", "options": ["The Congress of Vienna", "Ludwig van Beethoven", "The pancreas", "The Lighthouse of Alexandria"], "correct": "B", "answer_text": "Ludwig van Beethoven"}, {"q": "What is the largest artery in the human body?", "options": ["E = mc^2", "The aorta", "A galactic merger", "The pancreas"], "correct": "B", "answer_text": "The aorta"}, {"q": "What is the term for an animal that eats both plants and meat?", "options": ["Gilbert N. Lewis", "The Silk Road", "Omnivore", "Bromine"], "correct": "C", "answer_text": "Omnivore"}, {"q": "Which gas makes up the majority of Earth's atmosphere?", "options": ["Nitrogen", "John Milton", "Pablo Picasso", "Fyodor Dostoevsky"], "correct": "A", "answer_text": "Nitrogen"}]}, {"tier": 3, "questions": [{"q": "What is the name of the first man-made satellite?", "options": ["Geoffrey Chaucer", "Neil Armstrong", "Extinct", "Sputnik 1"], "correct": "D", "answer_text": "Sputnik 1"}, {"q": "Who wrote 'Pride and Prejudice'?", "options": ["Jane Austen", "Buenos Aires", "Andromeda Galaxy", "Gottfried Wilhelm Leibniz"], "correct": "A", "answer_text": "Jane Austen"}, {"q": "What is the study of the mind called?", "options": ["Refraction", "Claustrophobia", "Mycology", "Psychology"], "correct": "D", "answer_text": "Psychology"}, {"q": "What is the atomic number of oxygen?", "options": ["5", "7", "58", "8"], "correct": "D", "answer_text": "8"}, {"q": "Which empire built the Colosseum?", "options": ["The Mariana Trench", "Peru", "The Roman Empire", "Vatican City"], "correct": "C", "answer_text": "The Roman Empire"}, {"q": "What is the process of cell division called?", "options": ["Sputnik 1", "Michelangelo", "Mitosis", "Omnivore"], "correct": "C", "answer_text": "Mitosis"}, {"q": "Which scientist discovered penicillin?", "options": ["Alfred Russel Wallace", "Indo-European", "Alexander Fleming", "Photosynthesis"], "correct": "C", "answer_text": "Alexander Fleming"}, {"q": "What is the driest desert in the world?", "options": ["The Ottoman Empire", "Creutzfeldt-Jakob disease", "Japan", "The Atacama Desert"], "correct": "D", "answer_text": "The Atacama Desert"}, {"q": "Who was the first man to walk on the Moon?", "options": ["Neil Armstrong", "Margaret Thatcher", "The Silk Road", "Pathogen"], "correct": "A", "answer_text": "Neil Armstrong"}, {"q": "What is the largest species of shark?", "options": ["An irrational number", "Vincent van Gogh", "A supernova", "Whale shark"], "correct": "D", "answer_text": "Whale shark"}, {"q": "Which country is the origin of the samurai?", "options": ["The Grand Canyon", "The Ural Mountains", "Jean-Jacques Rousseau", "Japan"], "correct": "D", "answer_text": "Japan"}, {"q": "What is the term for the study of insects?", "options": ["Jupiter", "Entomology", "Archaeology", "George Washington"], "correct": "B", "answer_text": "Entomology"}, {"q": "What is the chemical symbol for potassium?", "options": ["Au", "K", "Fe", "Ruble"], "correct": "B", "answer_text": "K"}, {"q": "Which mountain range separates Europe and Asia?", "options": ["Sri Lanka", "The Ural Mountains", "Vatican City", "Japan"], "correct": "B", "answer_text": "The Ural Mountains"}, {"q": "What is the largest internal organ in the human body?", "options": ["A galactic merger", "Organic chemistry", "The liver", "O negative"], "correct": "C", "answer_text": "The liver"}, {"q": "Who discovered gravity by observing a falling apple?", "options": ["Pathogen", "The Andes", "Cosmology", "Isaac Newton"], "correct": "D", "answer_text": "Isaac Newton"}, {"q": "What is the term for a word that reads the same backward as forward?", "options": ["Palindrome", "Cleopatra VII", "Angel Falls", "Patella"], "correct": "A", "answer_text": "Palindrome"}, {"q": "Which country was formerly known as Persia?", "options": ["Japan", "Iran", "The Tigris River", "The Sahara"], "correct": "B", "answer_text": "Iran"}, {"q": "What is the SI unit of electrical resistance?", "options": ["Bern", "Francis Crick", "The Vedas", "Ohm"], "correct": "D", "answer_text": "Ohm"}, {"q": "Who wrote 'The Odyssey'?", "options": ["Euclid", "Homer", "J. J. Thomson", "Alfred Wegener"], "correct": "B", "answer_text": "Homer"}, {"q": "Which vitamin deficiency causes scurvy?", "options": ["Thomas Hobbes", "Palindrome", "Vitamin C", "Dante Alighieri"], "correct": "C", "answer_text": "Vitamin C"}, {"q": "What is the name of the process where a liquid turns to gas?", "options": ["Nitrogen", "Proxima Centauri", "Angel Falls", "Evaporation"], "correct": "D", "answer_text": "Evaporation"}, {"q": "Which war was fought between the North and South United States?", "options": ["The pancreas", "An irrational number", "The American Civil War", "Organic chemistry"], "correct": "C", "answer_text": "The American Civil War"}, {"q": "What is the study of ancient societies through artifacts called?", "options": ["Archaeology", "Larynx", "Richard Feynman", "Pathogen"], "correct": "A", "answer_text": "Archaeology"}, {"q": "Which philosopher taught Alexander the Great?", "options": ["Gottfried Wilhelm Leibniz", "Greenland", "Mycology", "Aristotle"], "correct": "D", "answer_text": "Aristotle"}, {"q": "What element does the symbol 'Pb' represent?", "options": ["Albert Einstein", "Henry VIII", "Lead", "Michelangelo"], "correct": "C", "answer_text": "Lead"}, {"q": "What is the medical term for high blood pressure?", "options": ["Queen Victoria", "Larynx", "Hypertension", "Mitosis"], "correct": "C", "answer_text": "Hypertension"}, {"q": "Who painted the ceiling of the Sistine Chapel?", "options": ["Vitamin D", "Michelangelo", "Alexander Fleming", "Alfred Russel Wallace"], "correct": "B", "answer_text": "Michelangelo"}]}, {"tier": 4, "questions": [{"q": "What is the smallest prime number?", "options": ["7", "5", "22", "2"], "correct": "D", "answer_text": "2"}, {"q": "Which river flows through Baghdad?", "options": ["The Tigris River", "The asteroid belt", "The Atacama Desert", "The United States"], "correct": "A", "answer_text": "The Tigris River"}, {"q": "What is the hardest substance in the human body?", "options": ["The Library of Alexandria", "Tooth enamel", "E = mc^2", "The graviton"], "correct": "B", "answer_text": "Tooth enamel"}, {"q": "What is the name of the treaty that ended World War I?", "options": ["The Treaty of Versailles", "Time dilation", "The Battle of Waterloo", "The photon"], "correct": "A", "answer_text": "The Treaty of Versailles"}, {"q": "What is the term for a triangle with all sides equal?", "options": ["A black hole", "The femur", "The graviton", "Equilateral triangle"], "correct": "D", "answer_text": "Equilateral triangle"}, {"q": "Which planet has the Great Red Spot?", "options": ["Werner Heisenberg", "Cleopatra VII", "Henry VIII", "Jupiter"], "correct": "D", "answer_text": "Jupiter"}, {"q": "What is the study of maps called?", "options": ["Francis Crick", "John Milton", "Niccolo Machiavelli", "Cartography"], "correct": "D", "answer_text": "Cartography"}, {"q": "Who wrote 'War and Peace'?", "options": ["Larynx", "Leo Tolstoy", "Johannes Kepler", "Andromeda Galaxy"], "correct": "B", "answer_text": "Leo Tolstoy"}, {"q": "What is the name of the closest star to our solar system?", "options": ["Photosynthesis", "Vitamin C", "Genetics", "Proxima Centauri"], "correct": "D", "answer_text": "Proxima Centauri"}, {"q": "What is the capital of Switzerland?", "options": ["The Andes", "Bern", "Integration", "Martin Heidegger"], "correct": "B", "answer_text": "Bern"}, {"q": "Which blood type is known as the universal donor?", "options": ["The Lighthouse of Alexandria", "O negative", "The aorta", "A black hole"], "correct": "B", "answer_text": "O negative"}, {"q": "What is the largest canyon in the world?", "options": ["The Atlantic Ocean", "The Yangtze River", "The Grand Canyon", "Peru"], "correct": "C", "answer_text": "The Grand Canyon"}, {"q": "Who is the Greek god of the sea?", "options": ["Ampere", "Karl Marx", "Beriberi", "Poseidon"], "correct": "D", "answer_text": "Poseidon"}, {"q": "What is the currency of Russia?", "options": ["Ruble", "Larynx", "Vitamin C", "Albert Einstein"], "correct": "A", "answer_text": "Ruble"}, {"q": "Which scientist proposed the heliocentric model of the solar system?", "options": ["Nicolaus Copernicus", "Taxonomy", "Vitamin D", "Adam Smith"], "correct": "A", "answer_text": "Nicolaus Copernicus"}, {"q": "What is the term for the study of heredity?", "options": ["Andrew Wiles", "Seismology", "Genetics", "Lead"], "correct": "C", "answer_text": "Genetics"}, {"q": "Which country was the first to grant women the right to vote?", "options": ["Fyodor Dostoevsky", "New Zealand", "Niccolo Machiavelli", "Alexander Graham Bell"], "correct": "B", "answer_text": "New Zealand"}, {"q": "Who wrote 'The Divine Comedy'?", "options": ["Dante Alighieri", "Fyodor Dostoevsky", "Alfred Wegener", "Alexander Fleming"], "correct": "A", "answer_text": "Dante Alighieri"}, {"q": "What is the medical term for the voice box?", "options": ["Alexander Graham Bell", "J. J. Thomson", "Michelangelo", "Larynx"], "correct": "D", "answer_text": "Larynx"}, {"q": "Which battle marked the final defeat of Napoleon?", "options": ["The Treaty of Portsmouth", "The photon", "The Battle of Waterloo", "100 degrees"], "correct": "C", "answer_text": "The Battle of Waterloo"}, {"q": "What is the capital of Argentina?", "options": ["Friedrich Nietzsche", "Buenos Aires", "Nicholas II", "Jane Austen"], "correct": "B", "answer_text": "Buenos Aires"}, {"q": "Which element is liquid at room temperature besides mercury?", "options": ["Charlemagne", "Vitamin D", "Gilbert N. Lewis", "Bromine"], "correct": "D", "answer_text": "Bromine"}, {"q": "Which dynasty built the Forbidden City?", "options": ["Seismology", "The Ming Dynasty", "Extinct", "Andromeda Galaxy"], "correct": "B", "answer_text": "The Ming Dynasty"}, {"q": "Who developed the polio vaccine?", "options": ["Jonas Salk", "Fyodor Dostoevsky", "Dante Alighieri", "Ruble"], "correct": "A", "answer_text": "Jonas Salk"}, {"q": "What is the longest mountain range in the world?", "options": ["Transcription", "The Andes", "Bern", "Laozi"], "correct": "B", "answer_text": "The Andes"}, {"q": "Which explorer is credited with reaching the South Pole first?", "options": ["Roald Amundsen", "Andrew Wiles", "Hypertension", "Cartography"], "correct": "A", "answer_text": "Roald Amundsen"}, {"q": "What is the chemical name for laughing gas?", "options": ["The First Opium War", "The Congress of Vienna", "Nitrous oxide", "Absolute zero"], "correct": "C", "answer_text": "Nitrous oxide"}, {"q": "Who wrote 'Crime and Punishment'?", "options": ["Omnivore", "Buenos Aires", "Fyodor Dostoevsky", "Margaret Thatcher"], "correct": "C", "answer_text": "Fyodor Dostoevsky"}]}, {"tier": 5, "questions": [{"q": "What is the term for the study of the stars and celestial objects?", "options": ["Astronomy", "Mycology", "Hydrogen", "Jonas Salk"], "correct": "A", "answer_text": "Astronomy"}, {"q": "Which country is home to the ancient city of Machu Picchu?", "options": ["France", "The Grand Canyon", "Peru", "The Roman Empire"], "correct": "C", "answer_text": "Peru"}, {"q": "What is the SI unit of frequency?", "options": ["Hertz", "Wolfgang Amadeus Mozart", "Hydrogen", "Jane Austen"], "correct": "A", "answer_text": "Hertz"}, {"q": "Which King of England had six wives?", "options": ["The Silk Road", "Henry VIII", "Gilbert N. Lewis", "Photosynthesis"], "correct": "B", "answer_text": "Henry VIII"}, {"q": "What is the process called when a solid changes directly to a gas?", "options": ["Alexander Graham Bell", "Indo-European", "Sublimation", "Torque"], "correct": "C", "answer_text": "Sublimation"}, {"q": "What is the largest moon of Saturn?", "options": ["Titan", "Jonas Salk", "Nicolaus Copernicus", "Genetics"], "correct": "A", "answer_text": "Titan"}, {"q": "Who is considered the founder of modern economics?", "options": ["Taxonomy", "Adam Smith", "Extinct", "Hannibal"], "correct": "B", "answer_text": "Adam Smith"}, {"q": "Which country has the longest coastline in the world?", "options": ["France", "Creutzfeldt-Jakob disease", "Canada", "China"], "correct": "C", "answer_text": "Canada"}, {"q": "What is the name of the strait separating Asia and North America?", "options": ["The Bering Strait", "The Mariana Trench", "The Atacama Desert", "The ancient Egyptians"], "correct": "A", "answer_text": "The Bering Strait"}, {"q": "What is the medical term for the kneecap?", "options": ["Meteorology", "Karl Marx", "Cartography", "Patella"], "correct": "D", "answer_text": "Patella"}, {"q": "Who wrote the 'Canterbury Tales'?", "options": ["Barometer", "Geoffrey Chaucer", "Ottawa", "Genghis Khan"], "correct": "B", "answer_text": "Geoffrey Chaucer"}, {"q": "What is the term for a fear of enclosed spaces?", "options": ["Hertz", "Lead", "Claustrophobia", "Charlemagne"], "correct": "C", "answer_text": "Claustrophobia"}, {"q": "Which acid is found in the human stomach?", "options": ["Hydrochloric acid", "Organic chemistry", "The liver", "The American Civil War"], "correct": "A", "answer_text": "Hydrochloric acid"}, {"q": "What is the name of the galaxy closest to the Milky Way?", "options": ["James Chadwick", "Henry VIII", "Mars", "Andromeda Galaxy"], "correct": "D", "answer_text": "Andromeda Galaxy"}, {"q": "Who was the Byzantine Emperor during the fall of Constantinople in 1453?", "options": ["Dante Alighieri", "The Andes", "Mao Zedong", "Constantine XI"], "correct": "D", "answer_text": "Constantine XI"}, {"q": "What is the term for the branch of chemistry dealing with carbon compounds?", "options": ["The Treaty of Portsmouth", "Hydrochloric acid", "ATP synthase", "Organic chemistry"], "correct": "D", "answer_text": "Organic chemistry"}, {"q": "Which treaty ended the Thirty Years' War?", "options": ["The Peace of Westphalia", "Tooth enamel", "Metamorphic rock", "The corona"], "correct": "A", "answer_text": "The Peace of Westphalia"}, {"q": "What is the name of the process by which stars produce energy?", "options": ["The Mohorovicic discontinuity", "Nuclear fission", "Nuclear fusion", "The Big Bang Theory"], "correct": "C", "answer_text": "Nuclear fusion"}, {"q": "Who wrote 'The Brothers Karamazov'?", "options": ["Andromeda Galaxy", "Roald Amundsen", "Fyodor Dostoevsky", "Amylase"], "correct": "C", "answer_text": "Fyodor Dostoevsky"}, {"q": "What is the term for the study of fungi?", "options": ["Immanuel Kant", "Mycology", "Psychology", "Angel Falls"], "correct": "B", "answer_text": "Mycology"}, {"q": "Which country was formerly called Ceylon?", "options": ["Iran", "Sri Lanka", "The Bering Strait", "China"], "correct": "B", "answer_text": "Sri Lanka"}, {"q": "What is the name of the enzyme that breaks down starch in saliva?", "options": ["Amylase", "Friedrich Nietzsche", "Sublimation", "Omnivore"], "correct": "A", "answer_text": "Amylase"}, {"q": "Who was the longest-reigning monarch in British history before Elizabeth II?", "options": ["Sublimation", "Queen Victoria", "Nitrogen", "Jupiter"], "correct": "B", "answer_text": "Queen Victoria"}, {"q": "What is the term for the boundary of a black hole from which nothing can escape?", "options": ["The Battle of Midway", "The Battle of Stalingrad", "Event horizon", "Ludwig van Beethoven"], "correct": "C", "answer_text": "Event horizon"}, {"q": "Which philosopher wrote 'Thus Spoke Zarathustra'?", "options": ["Isaac Newton", "Catalyst", "Friedrich Nietzsche", "Martin Heidegger"], "correct": "C", "answer_text": "Friedrich Nietzsche"}, {"q": "What is the SI unit for radioactive activity?", "options": ["Angel Falls", "Becquerel", "Jonas Salk", "Seismology"], "correct": "B", "answer_text": "Becquerel"}, {"q": "Who painted 'Guernica'?", "options": ["Bern", "Nitrogen", "Immanuel Kant", "Pablo Picasso"], "correct": "D", "answer_text": "Pablo Picasso"}, {"q": "What is the term for a substance that speeds up a chemical reaction without being consumed?", "options": ["Margaret Thatcher", "Catalyst", "Ferdinand Magellan", "Ohm"], "correct": "B", "answer_text": "Catalyst"}]}, {"tier": 6, "questions": [{"q": "Which mountain is the tallest in Africa?", "options": ["Mount Kilimanjaro", "Integration", "Charles Darwin", "Poseidon"], "correct": "A", "answer_text": "Mount Kilimanjaro"}, {"q": "What is the name of the disease caused by a lack of thiamine?", "options": ["Mount Kilimanjaro", "Adam Smith", "Beriberi", "Bern"], "correct": "C", "answer_text": "Beriberi"}, {"q": "Who was the first female Prime Minister of the United Kingdom?", "options": ["Karl Marx", "Margaret Thatcher", "Hertz", "Wolfgang Amadeus Mozart"], "correct": "B", "answer_text": "Margaret Thatcher"}, {"q": "What is the term for the twisting force that causes rotation?", "options": ["Genetics", "Genghis Khan", "Erwin Schrodinger", "Torque"], "correct": "D", "answer_text": "Torque"}, {"q": "Which ancient wonder of the world was located in Alexandria?", "options": ["The Lighthouse of Alexandria", "The aorta", "Organic chemistry", "The American Civil War"], "correct": "A", "answer_text": "The Lighthouse of Alexandria"}, {"q": "What is the name of the theory that the universe began from a single point?", "options": ["The Big Bang Theory", "Paleontology", "Kepler's First Law", "The Second Law of Thermodynamics"], "correct": "A", "answer_text": "The Big Bang Theory"}, {"q": "Who composed the opera 'The Magic Flute'?", "options": ["Integration", "Hammurabi", "Mars", "Wolfgang Amadeus Mozart"], "correct": "D", "answer_text": "Wolfgang Amadeus Mozart"}, {"q": "What is the term for an organism's complete set of DNA?", "options": ["Taxonomy", "Friedrich Nietzsche", "Alexander Fleming", "Genome"], "correct": "D", "answer_text": "Genome"}, {"q": "Which country annexed Crimea in 2014?", "options": ["The Roman Empire", "Sri Lanka", "Russia", "British India"], "correct": "C", "answer_text": "Russia"}, {"q": "Who wrote the philosophical work 'Critique of Pure Reason'?", "options": ["Charlemagne", "Immanuel Kant", "Cosmology", "Wilhelm Rontgen"], "correct": "B", "answer_text": "Immanuel Kant"}, {"q": "What is the term for the layer of the sun visible during a total eclipse?", "options": ["The aorta", "The corona", "Miguel de Cervantes", "Vincent van Gogh"], "correct": "B", "answer_text": "The corona"}, {"q": "Which empire was ruled by Suleiman the Magnificent?", "options": ["The Ottoman Empire", "The Mariana Trench", "The Grand Canyon", "Peru"], "correct": "A", "answer_text": "The Ottoman Empire"}, {"q": "Who was the Roman general who crossed the Alps with elephants?", "options": ["Greenland", "Archaeology", "Hannibal", "Alfred Wegener"], "correct": "C", "answer_text": "Hannibal"}, {"q": "What is the term for a disease-causing microorganism?", "options": ["The Qin Dynasty", "Pathogen", "Nicolaus Copernicus", "Hannibal"], "correct": "B", "answer_text": "Pathogen"}, {"q": "What is the name of the law stating that force equals mass times acceleration?", "options": ["The Doppler effect", "A divergent boundary", "Newton's Second Law", "Alpha decay"], "correct": "C", "answer_text": "Newton's Second Law"}, {"q": "Who wrote 'Don Quixote'?", "options": ["Louis de Broglie", "Miguel de Cervantes", "The stapes", "The femur"], "correct": "B", "answer_text": "Miguel de Cervantes"}, {"q": "Which country was the first to develop a nuclear weapon?", "options": ["The United States", "France", "The Grand Canyon", "The Ottoman Empire"], "correct": "A", "answer_text": "The United States"}, {"q": "What is the name of the ancient Greek philosopher who taught Plato?", "options": ["Socrates", "Photosynthesis", "Roald Amundsen", "Seismology"], "correct": "A", "answer_text": "Socrates"}, {"q": "What is the term for the study of the physical universe's origin?", "options": ["Nicolaus Copernicus", "Cosmology", "The Vedas", "Nicholas II"], "correct": "B", "answer_text": "Cosmology"}, {"q": "Which river is the longest in South America?", "options": ["Vatican City", "Creutzfeldt-Jakob disease", "The Amazon River", "China"], "correct": "C", "answer_text": "The Amazon River"}, {"q": "What is the name of the equation relating energy, mass, and the speed of light?", "options": ["The strong nuclear force", "Pound sterling", "E = mc^2", "The aorta"], "correct": "C", "answer_text": "E = mc^2"}, {"q": "Who was the first Holy Roman Emperor?", "options": ["Alfred Wegener", "Plato", "Charlemagne", "J. J. Thomson"], "correct": "C", "answer_text": "Charlemagne"}, {"q": "What is the term for the process by which genetic info is copied from DNA to RNA?", "options": ["Transcription", "Greenland", "Vitamin D", "Jane Austen"], "correct": "A", "answer_text": "Transcription"}, {"q": "Which composer became deaf later in life yet continued composing?", "options": ["Deoxyribonucleic acid", "The liver", "Ludwig van Beethoven", "An irrational number"], "correct": "C", "answer_text": "Ludwig van Beethoven"}, {"q": "What is the name of the particle that mediates the electromagnetic force?", "options": ["The Peace of Westphalia", "The photon", "The aorta", "The Battle of Waterloo"], "correct": "B", "answer_text": "The photon"}, {"q": "Which ancient empire was centered in modern-day Peru?", "options": ["The Atacama Desert", "The Yangtze River", "Japan", "The Inca Empire"], "correct": "D", "answer_text": "The Inca Empire"}, {"q": "Who wrote the 'Communist Manifesto' with Friedrich Engels?", "options": ["Jupiter", "Genetics", "Werner Heisenberg", "Karl Marx"], "correct": "D", "answer_text": "Karl Marx"}, {"q": "Which battle is considered the turning point of the Pacific theater in WWII?", "options": ["The Battle of Midway", "The cell", "Whale shark", "The corona"], "correct": "A", "answer_text": "The Battle of Midway"}]}, {"tier": 7, "questions": [{"q": "What is the term for the phenomenon where light bends passing through different media?", "options": ["The Precambrian", "Refraction", "Jane Austen", "Cosmology"], "correct": "B", "answer_text": "Refraction"}, {"q": "Who was the ancient Chinese philosopher who founded Taoism?", "options": ["Laozi", "Ferdinand Magellan", "Entomology", "The Andes"], "correct": "A", "answer_text": "Laozi"}, {"q": "What is the name of the disease caused by a prion, affecting the brain?", "options": ["British India", "The Amazon River", "Creutzfeldt-Jakob disease", "The Bering Strait"], "correct": "C", "answer_text": "Creutzfeldt-Jakob disease"}, {"q": "What is the term for a scientific law describing planetary orbits as ellipses?", "options": ["Newton's Second Law", "Kepler's First Law", "Alpha decay", "Leonhard Euler"], "correct": "B", "answer_text": "Kepler's First Law"}, {"q": "Who painted 'The Persistence of Memory'?", "options": ["Palindrome", "Genghis Khan", "Pathogen", "Salvador Dali"], "correct": "D", "answer_text": "Salvador Dali"}, {"q": "Which mathematician developed calculus independently of Newton?", "options": ["Catalyst", "Gottfried Wilhelm Leibniz", "Nicholas II", "David Ricardo"], "correct": "B", "answer_text": "Gottfried Wilhelm Leibniz"}, {"q": "What is the term for the study of the classification of organisms?", "options": ["Taxonomy", "Socrates", "Extinct", "Neil Armstrong"], "correct": "A", "answer_text": "Taxonomy"}, {"q": "Which country was partitioned in 1947 to create India and Pakistan?", "options": ["British India", "Jean-Jacques Rousseau", "Sri Lanka", "The United States"], "correct": "A", "answer_text": "British India"}, {"q": "What is the name of the enzyme that unwinds DNA during replication?", "options": ["Helicase", "Francis Crick", "Patella", "Henry VIII"], "correct": "A", "answer_text": "Helicase"}, {"q": "Who wrote the epic poem 'Paradise Lost'?", "options": ["Charles Darwin", "John Milton", "Evaporation", "Lead"], "correct": "B", "answer_text": "John Milton"}, {"q": "What is the term for an area of the ocean with very low oxygen levels?", "options": ["The Wall Street Crash", "A dead zone", "The Battle of Midway", "Kenneth Appel (with Wolfgang Haken)"], "correct": "B", "answer_text": "A dead zone"}, {"q": "Which scientist formulated the laws of planetary motion?", "options": ["Leo Tolstoy", "Entomology", "Johannes Kepler", "Cartography"], "correct": "C", "answer_text": "Johannes Kepler"}, {"q": "What is the name of the ancient trade route connecting China and the Mediterranean?", "options": ["Jane Austen", "Kurt Godel", "The Silk Road", "Homer"], "correct": "C", "answer_text": "The Silk Road"}, {"q": "Who was the last Tsar of Russia?", "options": ["Larynx", "Mitosis", "Nicholas II", "Andromeda Galaxy"], "correct": "C", "answer_text": "Nicholas II"}, {"q": "What is the name of the force that holds the nucleus of an atom together?", "options": ["Vasco da Gama", "The Battle of Stalingrad", "Whale shark", "The strong nuclear force"], "correct": "D", "answer_text": "The strong nuclear force"}, {"q": "Which explorer led the first expedition to circumnavigate the globe?", "options": ["Psychology", "Ferdinand Magellan", "Helicase", "Vitamin D"], "correct": "B", "answer_text": "Ferdinand Magellan"}, {"q": "Who developed the periodic table of elements?", "options": ["Dmitri Mendeleev", "The Silk Road", "Vitamin D", "Mitosis"], "correct": "A", "answer_text": "Dmitri Mendeleev"}, {"q": "What is the name of the 1815 battle that ended Napoleon's rule for good?", "options": ["The Battle of Waterloo", "Pound sterling", "Tooth enamel", "Vasco da Gama"], "correct": "A", "answer_text": "The Battle of Waterloo"}, {"q": "Which philosopher is known for the phrase 'Cogito, ergo sum'?", "options": ["Arachnophobia", "Omnivore", "Patella", "Rene Descartes"], "correct": "D", "answer_text": "Rene Descartes"}, {"q": "Who wrote 'The Wealth of Nations'?", "options": ["Seismology", "Adam Smith", "NaCl", "Beriberi"], "correct": "B", "answer_text": "Adam Smith"}, {"q": "What is the term for the effect where moving observers measure different time intervals?", "options": ["The pancreas", "Gyroscopic precession", "Hydrochloric acid", "Time dilation"], "correct": "D", "answer_text": "Time dilation"}, {"q": "Which ancient civilization developed cuneiform, the first known writing system?", "options": ["Alfred Wegener", "Barometer", "Vitamin C", "The Sumerians"], "correct": "D", "answer_text": "The Sumerians"}, {"q": "Who was the German chancellor during the reunification of Germany in 1990?", "options": ["Helmut Kohl", "Thomas Hobbes", "Ohm", "Henry VIII"], "correct": "A", "answer_text": "Helmut Kohl"}, {"q": "What is the name of the hypothetical particle that mediates gravity?", "options": ["The Lighthouse of Alexandria", "The graviton", "The photon", "The Treaty of Portsmouth"], "correct": "B", "answer_text": "The graviton"}, {"q": "Which mathematician proved Fermat's Last Theorem in 1994?", "options": ["Mitosis", "Andrew Wiles", "Andromeda Galaxy", "Transcription"], "correct": "B", "answer_text": "Andrew Wiles"}, {"q": "Who was the Byzantine Emperor who codified Roman law?", "options": ["Cosmology", "Justinian I", "Andromeda Galaxy", "Niccolo Machiavelli"], "correct": "B", "answer_text": "Justinian I"}, {"q": "What is the name of the principle stating you cannot know both position and momentum precisely?", "options": ["An endothermic reaction", "Down syndrome", "The Mohorovicic discontinuity", "The Heisenberg Uncertainty Principle"], "correct": "D", "answer_text": "The Heisenberg Uncertainty Principle"}, {"q": "Which ancient Mesopotamian king created one of the earliest known law codes?", "options": ["Dante Alighieri", "Rene Descartes", "Hammurabi", "Alexander Graham Bell"], "correct": "C", "answer_text": "Hammurabi"}]}, {"tier": 8, "questions": [{"q": "What is the term for the process by which a star collapses into a neutron star?", "options": ["Equilateral triangle", "A supernova", "Kenneth Appel (with Wolfgang Haken)", "The Battle of Stalingrad"], "correct": "B", "answer_text": "A supernova"}, {"q": "Who wrote the philosophical treatise 'Being and Time'?", "options": ["Hypertension", "Martin Heidegger", "Arachnophobia", "Helicase"], "correct": "B", "answer_text": "Martin Heidegger"}, {"q": "What is the name of the enzyme complex that synthesizes ATP in mitochondria?", "options": ["ATP synthase", "The Battle of Manzikert", "Blue whale", "Equilateral triangle"], "correct": "A", "answer_text": "ATP synthase"}, {"q": "Which treaty in 1648 established the modern concept of state sovereignty?", "options": ["The photon", "The Peace of Westphalia", "The Wall Street Crash", "Organic chemistry"], "correct": "B", "answer_text": "The Peace of Westphalia"}, {"q": "What is the term for a number that cannot be expressed as a ratio of two integers?", "options": ["An irrational number", "The Peace of Westphalia", "Whale shark", "The liver"], "correct": "A", "answer_text": "An irrational number"}, {"q": "Who discovered the neutron in 1932?", "options": ["Wilhelm Rontgen", "Psychology", "Ottawa", "James Chadwick"], "correct": "D", "answer_text": "James Chadwick"}, {"q": "Which economist developed the theory of comparative advantage?", "options": ["Nicolaus Copernicus", "Hannibal", "David Ricardo", "Patella"], "correct": "C", "answer_text": "David Ricardo"}, {"q": "What is the term for the phenomenon where entangled particles affect each other at a distance?", "options": ["O negative", "Quantum entanglement", "A nova", "Tooth enamel"], "correct": "B", "answer_text": "Quantum entanglement"}, {"q": "Who was the first female recipient of a Nobel Prize?", "options": ["Andrew Wiles", "Marie Curie", "Omnivore", "Mount Kilimanjaro"], "correct": "B", "answer_text": "Marie Curie"}, {"q": "Which dynasty unified China for the first time under Qin Shi Huang?", "options": ["The Qin Dynasty", "Laozi", "Geoffrey Chaucer", "Gottfried Wilhelm Leibniz"], "correct": "A", "answer_text": "The Qin Dynasty"}, {"q": "What is the term for the mathematical constant approximately equal to 2.71828?", "options": ["The Treaty of Portsmouth", "Euler's number", "The stapes", "Ludwig van Beethoven"], "correct": "B", "answer_text": "Euler's number"}, {"q": "Who proposed the theory of continental drift?", "options": ["Vitamin D", "Catalyst", "Alfred Wegener", "Cleopatra VII"], "correct": "C", "answer_text": "Alfred Wegener"}, {"q": "Which ancient Greek mathematician wrote 'Elements'?", "options": ["Euclid", "Geoffrey Chaucer", "James Chadwick", "Ottawa"], "correct": "A", "answer_text": "Euclid"}, {"q": "What is the term for a chemical reaction that absorbs heat from its surroundings?", "options": ["Newton's Second Law", "Nuclear fusion", "Kepler's First Law", "An endothermic reaction"], "correct": "D", "answer_text": "An endothermic reaction"}, {"q": "Who was the philosopher who wrote 'Leviathan'?", "options": ["Cosmology", "Werner Heisenberg", "Thomas Hobbes", "Albert Einstein"], "correct": "C", "answer_text": "Thomas Hobbes"}, {"q": "Which battle in 1071 marked a major Byzantine defeat against the Seljuk Turks?", "options": ["The American Civil War", "ATP synthase", "The Battle of Manzikert", "Tooth enamel"], "correct": "C", "answer_text": "The Battle of Manzikert"}, {"q": "What is the term for the theoretical minimum temperature where entropy is minimal?", "options": ["The photon", "Absolute zero", "Quantum entanglement", "Time dilation"], "correct": "B", "answer_text": "Absolute zero"}, {"q": "Who developed the general theory of relativity?", "options": ["Albert Einstein", "Friedrich Nietzsche", "Jonas Salk", "John Milton"], "correct": "A", "answer_text": "Albert Einstein"}, {"q": "What is the name of nuclear decay where an atom emits an alpha particle?", "options": ["Nuclear fission", "The Heisenberg Uncertainty Principle", "Alpha decay", "Newton's Second Law"], "correct": "C", "answer_text": "Alpha decay"}, {"q": "Which philosopher's work 'The Republic' discusses the ideal state?", "options": ["Nitrogen", "Plato", "Ampere", "Meteorology"], "correct": "B", "answer_text": "Plato"}, {"q": "Who was the Mongol emperor who established the largest land empire in history?", "options": ["Genghis Khan", "Henry VIII", "John Milton", "George Washington"], "correct": "A", "answer_text": "Genghis Khan"}, {"q": "What is the name of the effect where wave frequency changes due to relative motion?", "options": ["The photoelectric effect", "The Second Law of Thermodynamics", "The Doppler effect", "Alpha decay"], "correct": "C", "answer_text": "The Doppler effect"}, {"q": "Who is credited with the discovery of the electron?", "options": ["J. J. Thomson", "Archaeology", "Erwin Schrodinger", "Hammurabi"], "correct": "A", "answer_text": "J. J. Thomson"}, {"q": "What is the term for a compound with the same molecular formula but different structure?", "options": ["Leonardo da Vinci", "An isomer", "The Heisenberg Uncertainty Principle", "A divergent boundary"], "correct": "B", "answer_text": "An isomer"}, {"q": "Who wrote the 'Meditations', a philosophical work by a Roman emperor?", "options": ["Marcus Aurelius", "Roald Amundsen", "Friedrich Nietzsche", "Hypertension"], "correct": "A", "answer_text": "Marcus Aurelius"}, {"q": "Which mathematician formulated the incompleteness theorems?", "options": ["Kurt Godel", "Nicholas II", "Nicolaus Copernicus", "Queen Victoria"], "correct": "A", "answer_text": "Kurt Godel"}, {"q": "Who was the last pharaoh of ancient Egypt?", "options": ["Marcus Aurelius", "Seismology", "Cleopatra VII", "Queen Victoria"], "correct": "C", "answer_text": "Cleopatra VII"}, {"q": "Which 19th century treaty redrew the map of Europe after Napoleon's defeat?", "options": ["The Congress of Vienna", "Event horizon", "The pancreas", "E = mc^2"], "correct": "A", "answer_text": "The Congress of Vienna"}]}, {"tier": 9, "questions": [{"q": "What is the term for an element with the same protons but different neutrons?", "options": ["An isotope", "Down syndrome", "Nuclear fission", "The Big Bang Theory"], "correct": "A", "answer_text": "An isotope"}, {"q": "Who proposed the wave-particle duality of light and matter?", "options": ["Louis de Broglie", "O negative", "The Battle of Midway", "Kenneth Appel (with Wolfgang Haken)"], "correct": "A", "answer_text": "Louis de Broglie"}, {"q": "What is the name of the layer of the atmosphere where most weather occurs?", "options": ["Blue whale", "100 degrees", "The troposphere", "Tooth enamel"], "correct": "C", "answer_text": "The troposphere"}, {"q": "Which scientist is best known for the double-helix model of DNA, alongside Watson?", "options": ["Mars", "Hannibal", "Francis Crick", "Pablo Picasso"], "correct": "C", "answer_text": "Francis Crick"}, {"q": "What is the term for the study of the deep structure of the Earth using seismic waves?", "options": ["Queen Victoria", "Johannes Kepler", "James Clerk Maxwell", "Seismology"], "correct": "D", "answer_text": "Seismology"}, {"q": "Who wrote 'The Prince', a treatise on political power?", "options": ["Johannes Kepler", "Niccolo Machiavelli", "Titan", "Entomology"], "correct": "B", "answer_text": "Niccolo Machiavelli"}, {"q": "What is the name of the process where an electron and positron annihilate?", "options": ["Vincent van Gogh", "Pair annihilation", "An irrational number", "A nova"], "correct": "B", "answer_text": "Pair annihilation"}, {"q": "Which country's civil war lasted from 1936 to 1939, a precursor to WWII tensions?", "options": ["Iran", "China", "The United States", "Spain"], "correct": "D", "answer_text": "Spain"}, {"q": "What is the term for the boundary between two tectonic plates moving apart?", "options": ["A divergent boundary", "The Heisenberg Uncertainty Principle", "The Spanish Flu", "The photoelectric effect"], "correct": "A", "answer_text": "A divergent boundary"}, {"q": "Who was the physicist who developed quantum electrodynamics, sharing a Nobel Prize?", "options": ["Alfred Russel Wallace", "Vitamin C", "Richard Feynman", "Kurt Godel"], "correct": "C", "answer_text": "Richard Feynman"}, {"q": "What is the name of the 1918 flu pandemic often called?", "options": ["The Doppler effect", "The Heisenberg Uncertainty Principle", "The Second Law of Thermodynamics", "The Spanish Flu"], "correct": "D", "answer_text": "The Spanish Flu"}, {"q": "Which ancient library, famously destroyed, was located in Egypt?", "options": ["The Library of Alexandria", "A nova", "The Lighthouse of Alexandria", "Metamorphic rock"], "correct": "A", "answer_text": "The Library of Alexandria"}, {"q": "What is the term for a species that no longer exists anywhere on Earth?", "options": ["Extinct", "Cosmology", "Marie Curie", "Lead"], "correct": "A", "answer_text": "Extinct"}, {"q": "Who wrote the 'Origin of Species'?", "options": ["Henry VIII", "The Silk Road", "Constantine XI", "Charles Darwin"], "correct": "D", "answer_text": "Charles Darwin"}, {"q": "What is the name of the effect that keeps a spinning top upright?", "options": ["The Congress of Vienna", "Quantum entanglement", "Absolute zero", "Gyroscopic precession"], "correct": "D", "answer_text": "Gyroscopic precession"}, {"q": "Which mathematician is credited with the modern notation of imaginary numbers?", "options": ["Paleontology", "A divergent boundary", "Leonhard Euler", "An isotope"], "correct": "C", "answer_text": "Leonhard Euler"}, {"q": "What is the term for a rock formed by heat and pressure changing existing rock?", "options": ["Event horizon", "Euler's number", "Metamorphic rock", "Absolute zero"], "correct": "C", "answer_text": "Metamorphic rock"}, {"q": "Who led the Long March in Chinese Communist history?", "options": ["Andrew Wiles", "Mao Zedong", "Larynx", "Sublimation"], "correct": "B", "answer_text": "Mao Zedong"}, {"q": "What is the name of the process where light triggers electron emission from a metal?", "options": ["The photoelectric effect", "The Second Law of Thermodynamics", "Alpha decay", "Down syndrome"], "correct": "A", "answer_text": "The photoelectric effect"}, {"q": "Which philosopher argued for the 'social contract' in a work of the same theme?", "options": ["The United States", "Jean-Jacques Rousseau", "Russia", "Creutzfeldt-Jakob disease"], "correct": "B", "answer_text": "Jean-Jacques Rousseau"}, {"q": "What is the term for a genetic disorder caused by an extra copy of chromosome 21?", "options": ["Down syndrome", "Kepler's First Law", "Nuclear fission", "Leonardo da Vinci"], "correct": "A", "answer_text": "Down syndrome"}, {"q": "Who was the explorer that first reached India by sea route around Africa?", "options": ["A supernova", "Vasco da Gama", "A nova", "The corona"], "correct": "B", "answer_text": "Vasco da Gama"}, {"q": "What is the name of the smallest unit of life capable of independent reproduction?", "options": ["Pair annihilation", "The American Civil War", "The cell", "The photon"], "correct": "C", "answer_text": "The cell"}, {"q": "Which war ended with the Treaty of Nanking in 1842?", "options": ["Event horizon", "Euler's number", "The First Opium War", "Louis de Broglie"], "correct": "C", "answer_text": "The First Opium War"}, {"q": "What is the term for the region of space where escape velocity exceeds light speed?", "options": ["A black hole", "The Treaty of Versailles", "Tooth enamel", "The Peace of Westphalia"], "correct": "A", "answer_text": "A black hole"}, {"q": "Who discovered X-rays?", "options": ["Beriberi", "Helicase", "Wilhelm Rontgen", "Erwin Schrodinger"], "correct": "C", "answer_text": "Wilhelm Rontgen"}, {"q": "What is the name of the ancient Indian text considered foundational to Hinduism?", "options": ["Margaret Thatcher", "Aristotle", "The Vedas", "Alfred Wegener"], "correct": "C", "answer_text": "The Vedas"}, {"q": "Which physicist's equations describe the behavior of electric and magnetic fields?", "options": ["Mitosis", "James Clerk Maxwell", "Poseidon", "George Orwell"], "correct": "B", "answer_text": "James Clerk Maxwell"}]}, {"tier": 10, "questions": [{"q": "What is the name of the geological eon before complex life, over 4 billion years?", "options": ["Mitosis", "Socrates", "The Precambrian", "Meteorology"], "correct": "C", "answer_text": "The Precambrian"}, {"q": "Which ancient king's law code is inscribed on a stele now in the Louvre?", "options": ["Hammurabi", "Lead", "Greenland", "Francis Crick"], "correct": "A", "answer_text": "Hammurabi"}, {"q": "What is the term for the process of a virus inserting DNA into a host cell?", "options": ["Becquerel", "Claustrophobia", "Jonas Salk", "Integration"], "correct": "D", "answer_text": "Integration"}, {"q": "Who developed the concept of natural selection independently, alongside Darwin?", "options": ["Alfred Russel Wallace", "Marie Curie", "Albert Einstein", "The Sumerians"], "correct": "A", "answer_text": "Alfred Russel Wallace"}, {"q": "What is the name of the 1815 conference that redrew Europe's borders?", "options": ["Gyroscopic precession", "E = mc^2", "Organic chemistry", "The Congress of Vienna"], "correct": "D", "answer_text": "The Congress of Vienna"}, {"q": "Which scientist's equation describes the probability distribution of a quantum particle?", "options": ["Queen Victoria", "Marcus Aurelius", "Alexander Graham Bell", "Erwin Schrodinger"], "correct": "D", "answer_text": "Erwin Schrodinger"}, {"q": "What is the term for a star that suddenly increases dramatically in brightness?", "options": ["Absolute zero", "The stapes", "Euler's number", "A nova"], "correct": "D", "answer_text": "A nova"}, {"q": "Who was the philosopher-emperor who wrote reflections while on military campaigns?", "options": ["Indo-European", "Vitamin D", "Evaporation", "Marcus Aurelius"], "correct": "D", "answer_text": "Marcus Aurelius"}, {"q": "What is the name of the 1929 economic collapse that triggered the Great Depression?", "options": ["The Battle of Manzikert", "The Treaty of Portsmouth", "Absolute zero", "The Wall Street Crash"], "correct": "D", "answer_text": "The Wall Street Crash"}, {"q": "Which mathematician is known for the 'four color theorem' in graph theory?", "options": ["Time dilation", "Kenneth Appel (with Wolfgang Haken)", "The liver", "The Battle of Waterloo"], "correct": "B", "answer_text": "Kenneth Appel (with Wolfgang Haken)"}, {"q": "What is the term for the region between the orbits of Mars and Jupiter with many small bodies?", "options": ["The asteroid belt", "The Atacama Desert", "The Mariana Trench", "The Amazon River"], "correct": "A", "answer_text": "The asteroid belt"}, {"q": "Who was the Carthaginian general defeated at the Battle of Zama?", "options": ["Hannibal", "Hertz", "Qin Shi Huang", "David Ricardo"], "correct": "A", "answer_text": "Hannibal"}, {"q": "What is the name of the enzyme that adds nucleotides to the ends of chromosomes?", "options": ["Nicolaus Copernicus", "Telomerase", "Wolfgang Amadeus Mozart", "Mandarin Chinese"], "correct": "B", "answer_text": "Telomerase"}, {"q": "Which 20th-century physicist developed the uncertainty principle?", "options": ["Neil Armstrong", "Werner Heisenberg", "Erwin Schrodinger", "Dante Alighieri"], "correct": "B", "answer_text": "Werner Heisenberg"}, {"q": "What is the term for a language family that includes English, Hindi, and Persian?", "options": ["Hypertension", "Indo-European", "Omnivore", "James Chadwick"], "correct": "B", "answer_text": "Indo-European"}, {"q": "Who painted the ceiling fresco 'The Creation of Adam'?", "options": ["Alexander Fleming", "Hydrogen", "Photosynthesis", "Michelangelo"], "correct": "D", "answer_text": "Michelangelo"}, {"q": "What is the name of the process where nuclei split to release energy?", "options": ["Nuclear fission", "The photoelectric effect", "Alpha decay", "Leonardo da Vinci"], "correct": "A", "answer_text": "Nuclear fission"}, {"q": "Which treaty ended the Russo-Japanese War in 1905?", "options": ["Nitrous oxide", "Sumo wrestling", "E = mc^2", "The Treaty of Portsmouth"], "correct": "D", "answer_text": "The Treaty of Portsmouth"}, {"q": "What is the term for the boundary layer between Earth's crust and mantle?", "options": ["The Spanish Flu", "Leonhard Euler", "The Second Law of Thermodynamics", "The Mohorovicic discontinuity"], "correct": "D", "answer_text": "The Mohorovicic discontinuity"}, {"q": "Who wrote the foundational economic text 'Das Kapital'?", "options": ["Larynx", "Dmitri Mendeleev", "Karl Marx", "Mitosis"], "correct": "C", "answer_text": "Karl Marx"}, {"q": "What is the name of the 1943 battle considered the turning point on the Eastern Front?", "options": ["The Battle of Stalingrad", "Gyroscopic precession", "Absolute zero", "The aorta"], "correct": "A", "answer_text": "The Battle of Stalingrad"}, {"q": "Which chemist proposed the octet rule and electron-pair bonding?", "options": ["Gilbert N. Lewis", "The Silk Road", "Geoffrey Chaucer", "Arachnophobia"], "correct": "A", "answer_text": "Gilbert N. Lewis"}, {"q": "What is the term for a supermassive star's final explosive collapse?", "options": ["Organic chemistry", "E = mc^2", "The Peace of Westphalia", "A supernova"], "correct": "D", "answer_text": "A supernova"}, {"q": "Who was the first emperor of a unified China?", "options": ["George Orwell", "The Ming Dynasty", "Geoffrey Chaucer", "Qin Shi Huang"], "correct": "D", "answer_text": "Qin Shi Huang"}, {"q": "What is the name of the principle that entropy always increases in an isolated system?", "options": ["Nuclear fission", "The Second Law of Thermodynamics", "An isotope", "Paleontology"], "correct": "B", "answer_text": "The Second Law of Thermodynamics"}, {"q": "Which philosopher's 'Categorical Imperative' is central to deontological ethics?", "options": ["Qin Shi Huang", "Johannes Kepler", "Richard Feynman", "Immanuel Kant"], "correct": "D", "answer_text": "Immanuel Kant"}, {"q": "What is the term for the merging of two galaxies over cosmic time?", "options": ["The stapes", "The Battle of Waterloo", "A galactic merger", "The Library of Alexandria"], "correct": "C", "answer_text": "A galactic merger"}, {"q": "Who discovered the structure of benzene, reportedly after dreaming of a snake?", "options": ["Helicase", "August Kekule", "Photosynthesis", "Jupiter"], "correct": "B", "answer_text": "August Kekule"}]}]; // array of {tier, questions:[{q, options, correct, answer_text}]}
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    let session = [];
+    let sessionIdx = 0;
+    let score = 0;
+
+    function buildSession() {
+      // exactly one random question from each of the 10 tiers, in tier order
+      session = QUIZ_DATA.map(tierObj => {
+        const q = shuffle(tierObj.questions)[0];
+        return Object.assign({ tier: tierObj.tier }, q);
+      });
+      sessionIdx = 0;
+      score = 0;
+    }
+
+    const progressText = document.getElementById('progressText');
+    const tierText = document.getElementById('tierText');
+    const progressFill = document.getElementById('progressFill');
+    const questionBox = document.getElementById('questionBox');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const nextBtn = document.getElementById('nextBtn');
+    const quizArea = document.getElementById('quizArea');
+    const scoreBox = document.getElementById('scoreBox');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const restartBtn = document.getElementById('restartBtn');
+    const timerBtn = document.getElementById('timerBtn');
+    const timerCircle = document.getElementById('timerCircle');
+
+    function loadQuestion() {
+      if (sessionIdx >= session.length) {
+        showFinalScore();
+        return;
+      }
+      stopTimer();
+      nextBtn.disabled = true;
+
+      const item = session[sessionIdx];
+      progressText.textContent = (sessionIdx + 1) + ' / ' + session.length;
+      tierText.textContent = 'Tier ' + item.tier;
+      progressFill.style.width = (sessionIdx / session.length * 100) + '%';
+      questionBox.textContent = item.q;
+
+      optionsGrid.innerHTML = '';
+      const letters = ['A','B','C','D'];
+      item.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerHTML = '<span class="option-letter">' + letters[i] + '</span><span>' + opt + '</span>';
+        btn.addEventListener('click', () => selectOption(letters[i], btn));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function selectOption(letter, btnEl) {
+      const allBtns = [...optionsGrid.children];
+      if (allBtns.some(b => b.disabled)) return; // already answered
+      allBtns.forEach(b => b.disabled = true);
+
+      const item = session[sessionIdx];
+      const correctIdx = ['A','B','C','D'].indexOf(item.correct);
+      allBtns[correctIdx].classList.add('correct');
+      if (letter !== item.correct) {
+        btnEl.classList.add('incorrect');
+      } else {
+        score++;
+      }
+      stopTimer();
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      sessionIdx++;
+      loadQuestion();
+    });
+
+    function showFinalScore() {
+      quizArea.style.display = 'none';
+      scoreBox.style.display = 'block';
+      finalScoreText.textContent = 'Score: ' + score + ' / ' + session.length;
+    }
+
+    restartBtn.addEventListener('click', () => {
+      quizArea.style.display = 'block';
+      scoreBox.style.display = 'none';
+      buildSession();
+      loadQuestion();
+    });
+
+    /* ---------- independent 30s timer (always startable/stoppable) ---------- */
+    let timerInterval = null;
+    let timeLeft = 30;
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('running', 'warning');
+      timerBtn.disabled = false;
+      timerBtn.textContent = 'Start Timer';
+    }
+
+    function startTimer() {
+      if (timerInterval !== null) return;
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('warning');
+      timerCircle.classList.add('running');
+      timerBtn.disabled = true;
+      timerBtn.textContent = 'Running...';
+
+      timerInterval = setInterval(function () {
+        timeLeft = timeLeft - 1;
+        if (timeLeft <= 0) {
+          timerCircle.textContent = '0';
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerBtn.disabled = false;
+          timerBtn.textContent = 'Start Timer';
+          timerCircle.classList.remove('running');
+          return;
+        }
+        timerCircle.textContent = timeLeft;
+        if (timeLeft <= 10) {
+          timerCircle.classList.add('warning');
+        }
+      }, 1000);
+    }
+
+    timerBtn.addEventListener('click', startTimer);
+
+    /* ---------- init ---------- */
+    buildSession();
+    loadQuestion();
+  </script>
+
+</body>
+</html>
