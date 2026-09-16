@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Moving Polka Dot Background</title>
+<title>KBC</title>
 <style>
   :root {
     --bg-color: #ffffff;
@@ -269,78 +269,247 @@
 
   <script>
     /* ---------- quiz data ---------- */
-    const QUESTION_SEEDS = [
-      [
-        ['Which theorem states that every bounded sequence in R^n has a convergent subsequence?', ['Bolzano–Weierstrass theorem', 'Heine–Borel theorem', 'Banach fixed-point theorem', 'Arzelà–Ascoli theorem']],
-        ['Which distribution is the conjugate prior for a Bernoulli likelihood?', ['Beta distribution', 'Gamma distribution', 'Normal distribution', 'Poisson distribution']],
-        ['Which process removes introns from a eukaryotic pre-mRNA?', ['RNA splicing', 'RNA editing', 'Polyadenylation', 'Capping']],
-        ['Which law gives the relationship between entropy and the number of microstates?', ['Boltzmann entropy formula', 'Hooke\'s law', 'Lenz\'s law', 'Planck\'s law']],
-        ['In algebraic topology, what is the fundamental group of the circle?', ['The integers Z', 'The trivial group', 'The integers modulo 2', 'The real numbers R']]
-      ],
-      [
-        ['What is the oxidation state of chromium in dichromate, Cr2O7^2−?', ['+6', '+3', '+7', '+2']],
-        ['Which moon has a thick nitrogen atmosphere and methane lakes?', ['Titan', 'Triton', 'Europa', 'Ganymede']],
-        ['Which theorem relates a line integral around a closed curve to a surface integral?', ['Stokes\' theorem', 'Green\'s theorem', 'Gauss\'s law', 'Cauchy\'s theorem']],
-        ['Which statistical test compares the means of more than two groups?', ['ANOVA', 'Mann–Whitney U', 'Durbin–Watson', 'Kolmogorov–Smirnov']],
-        ['Which economist wrote The General Theory of Employment, Interest and Money?', ['John Maynard Keynes', 'Milton Friedman', 'David Ricardo', 'Joseph Schumpeter']]
-      ],
-      [
-        ['Which enzyme unwinds the DNA double helix during replication?', ['Helicase', 'Ligase', 'Primase', 'Topoisomerase']],
-        ['Which planet is the largest in the Solar System?', ['Jupiter', 'Saturn', 'Earth', 'Neptune']],
-        ['What is the antiderivative of 2x?', ['x^2 + C', 'x + C', '2x^2 + C', 'x^3 + C']],
-        ['Which composer wrote the Brandenburg Concertos?', ['Johann Sebastian Bach', 'George Frideric Handel', 'Antonio Vivaldi', 'Joseph Haydn']],
-        ['Which city is the capital of Kyrgyzstan?', ['Bishkek', 'Dushanbe', 'Tashkent', 'Ashgabat']]
-      ],
-      [
-        ['Who painted The Garden of Earthly Delights?', ['Hieronymus Bosch', 'Pieter Bruegel the Elder', 'Jan van Eyck', 'Albrecht Dürer']],
-        ['Which element has the greatest electronegativity on the Pauling scale?', ['Fluorine', 'Oxygen', 'Chlorine', 'Nitrogen']],
-        ['Which treaty divided newly discovered lands between Spain and Portugal?', ['Treaty of Tordesillas', 'Treaty of Zaragoza', 'Treaty of Cateau-Cambrésis', 'Treaty of Utrecht']],
-        ['What is the molar mass of water?', ['18 g/mol', '16 g/mol', '20 g/mol', '12 g/mol']],
-        ['Which organelle translates messenger RNA into a polypeptide?', ['Ribosome', 'Nucleolus', 'Golgi apparatus', 'Peroxisome']]
-      ],
-      [
-        ['Which moon has a thick nitrogen atmosphere and methane lakes?', ['Titan', 'Triton', 'Europa', 'Ganymede']],
-        ['Which theorem guarantees a root when a continuous function changes sign?', ['Intermediate Value Theorem', 'Mean Value Theorem', 'Extreme Value Theorem', 'Fundamental Theorem of Algebra']],
-        ['Who wrote The Master and Margarita?', ['Mikhail Bulgakov', 'Boris Pasternak', 'Fyodor Dostoevsky', 'Nikolai Gogol']],
-        ['Which battle ended Napoleon\'s rule as emperor?', ['Waterloo', 'Leipzig', 'Austerlitz', 'Borodino']],
-        ['Which language family includes Finnish, Hungarian, and Estonian?', ['Uralic', 'Altaic', 'Dravidian', 'Kartvelian']]
-      ],
-      [
-        ['Who first measured the charge-to-mass ratio of the electron?', ['J. J. Thomson', 'Robert Millikan', 'Ernest Rutherford', 'James Chadwick']],
-        ['Which river forms much of the border between Texas and Mexico?', ['Rio Grande', 'Colorado River', 'Yukon River', 'Brazos River']],
-        ['Which composer wrote the opera Wozzeck?', ['Alban Berg', 'Arnold Schoenberg', 'Anton Webern', 'Gustav Mahler']],
-        ['Which theorem relates a line integral around a closed curve to a surface integral?', ['Stokes\' theorem', 'Green\'s theorem', 'Gauss\'s law', 'Cauchy\'s theorem']],
-        ['Which immunoglobulin crosses the placenta most efficiently?', ['IgG', 'IgA', 'IgM', 'IgE']]
-      ],
-      [
-        ['Which process removes introns from a eukaryotic pre-mRNA?', ['RNA splicing', 'RNA editing', 'Polyadenylation', 'Capping']],
-        ['Which gas law states that pressure is inversely proportional to volume at constant temperature?', ['Boyle\'s law', 'Charles\'s law', 'Graham\'s law', 'Dalton\'s law']],
-        ['Which philosopher defended the categorical imperative?', ['Immanuel Kant', 'G. W. F. Hegel', 'David Hume', 'John Stuart Mill']],
-        ['Which battle is considered the turning point on the Eastern Front in World War II?', ['Stalingrad', 'Kursk', 'Moscow', 'Leningrad']],
-        ['Which number system is used in the RSA cryptosystem\'s key construction?', ['Modular arithmetic', 'Boolean algebra', 'Linear algebra', 'Vector calculus']]
-      ],
-      [
-        ['Which theorem says every bounded sequence in R^n has a convergent subsequence?', ['Bolzano–Weierstrass theorem', 'Heine–Borel theorem', 'Banach fixed-point theorem', 'Arzelà–Ascoli theorem']],
-        ['Which protein complex carries out oxidative phosphorylation in mitochondria?', ['Electron transport chain', 'Ribosome', 'Proteasome', 'Spliceosome']],
-        ['Which painter created Las Meninas?', ['Diego Velázquez', 'Francisco Goya', 'El Greco', 'Bartolomé Murillo']],
-        ['Which international agreement governs the non-navigational uses of international watercourses?', ['UN Watercourses Convention', 'MARPOL Convention', 'Ramsar Convention', 'Basel Convention']],
-        ['Which distribution is the conjugate prior for a Bernoulli likelihood?', ['Beta distribution', 'Gamma distribution', 'Normal distribution', 'Poisson distribution']]
-      ],
-      [
-        ['Which law gives the relationship between entropy and the number of microstates?', ['Boltzmann entropy formula', 'Hooke\'s law', 'Lenz\'s law', 'Planck\'s law']],
-        ['Which philosopher wrote Being and Time?', ['Martin Heidegger', 'Edmund Husserl', 'Jean-Paul Sartre', 'Maurice Merleau-Ponty']],
-        ['Which enzyme synthesizes RNA from a DNA template?', ['RNA polymerase', 'DNA ligase', 'Reverse transcriptase', 'DNA polymerase III']],
-        ['Which curve is the locus of points whose distances from a focus and directrix are equal?', ['Parabola', 'Ellipse', 'Hyperbola', 'Cardioid']],
-        ['Which theorem characterizes compact subsets of Euclidean space as closed and bounded?', ['Heine–Borel theorem', 'Hahn–Banach theorem', 'Riesz representation theorem', 'Lagrange theorem']]
-      ],
-      [
-        ['In algebraic topology, what is the fundamental group of the circle?', ['The integers Z', 'The trivial group', 'The integers modulo 2', 'The real numbers R']],
-        ['Which theorem states that every finite division ring is commutative?', ['Wedderburn\'s little theorem', 'Cayley–Hamilton theorem', 'Sylow theorem', 'Noether isomorphism theorem']],
-        ['Which particle mediates the strong nuclear force?', ['Gluon', 'Photon', 'W boson', 'Graviton']],
-        ['What is the residue of 1/z at z = 0?', ['1', '0', '−1', 'It is undefined']],
-        ['Which result says a sufficiently large integer must contain a prime factor in a specified interval?', ['Bertrand\'s postulate', 'Fermat\'s Last Theorem', 'Wilson\'s theorem', 'Dirichlet\'s theorem']]
-      ]
+    const GENERAL_KNOWLEDGE_BANK = [
+      ["Who was the first president of the United States?", ["George Washington", "John Adams", "Thomas Jefferson", "James Madison"]],
+      ["What is the capital city of Canada?", ["Ottawa", "Toronto", "Montreal", "Vancouver"]],
+      ["Which empire built Machu Picchu?", ["Inca Empire", "Roman Empire", "Ottoman Empire", "Mughal Empire"]],
+      ["Who painted the Mona Lisa?", ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Michelangelo"]],
+      ["Which ocean lies between Africa and Australia?", ["Indian Ocean", "Atlantic Ocean", "Pacific Ocean", "Arctic Ocean"]],
+      ["Who wrote 'Pride and Prejudice'?", ["Jane Austen", "Charlotte Brontë", "Mary Shelley", "George Eliot"]],
+      ["Which country hosted the 2016 Summer Olympics?", ["Brazil", "China", "United Kingdom", "Japan"]],
+      ["What is the currency of Japan?", ["Yen", "Won", "Ringgit", "Baht"]],
+      ["Which language has the most native speakers worldwide?", ["Mandarin Chinese", "English", "Spanish", "Hindi"]],
+      ["Who is known as the 'King of Pop'?", ["Michael Jackson", "Elvis Presley", "Prince", "David Bowie"]],
+      ["Which city is famous for the Leaning Tower?", ["Pisa", "Florence", "Rome", "Venice"]],
+      ["Which planet is known as the Red Planet?", ["Mars", "Venus", "Jupiter", "Mercury"]],
+      ["What is the largest desert on Earth?", ["Antarctica", "Sahara", "Arabian", "Gobi"]],
+      ["Which country has the most pyramids in the world?", ["Sudan", "Egypt", "Mexico", "Peru"]],
+      ["Which animal is the fastest land mammal?", ["Cheetah", "Horse", "Leopard", "Gazelle"]],
+      ["Who was the first man to walk on the Moon?", ["Neil Armstrong", "Buzz Aldrin", "Yuri Gagarin", "Alan Shepard"]],
+      ["Which country is the largest by area?", ["Russia", "Canada", "China", "United States"]],
+      ["Which artist painted 'The Starry Night'?", ["Vincent van Gogh", "Claude Monet", "Edgar Degas", "Paul Klee"]],
+      ["Which mountain is the tallest above sea level?", ["Mount Everest", "K2", "Kangchenjunga", "Makalu"]],
+      ["What is the smallest prime number?", ["2", "1", "3", "5"]],
+      ["Which ancient city was home to the Hanging Gardens?", ["Babylon", "Rome", "Athens", "Carthage"]],
+      ["Who wrote 'The Odyssey'?", ["Homer", "Virgil", "Sophocles", "Aeschylus"]],
+      ["Which country is home to the city of Kyoto?", ["Japan", "South Korea", "China", "Thailand"]],
+      ["What is the capital of Australia?", ["Canberra", "Sydney", "Melbourne", "Perth"]],
+      ["Which scientist developed the theory of relativity?", ["Albert Einstein", "Isaac Newton", "Stephen Hawking", "Galileo Galilei"]],
+      ["Which river runs through Baghdad?", ["Tigris", "Euphrates", "Nile", "Indus"]],
+      ["Who discovered penicillin?", ["Alexander Fleming", "Marie Curie", "Louis Pasteur", "Robert Koch"]],
+      ["Which country has the most UNESCO World Heritage Sites?", ["Italy", "China", "France", "India"]],
+      ["What is the largest mammal on Earth?", ["Blue whale", "African elephant", "Giraffe", "Hippopotamus"]],
+      ["Which writer created Sherlock Holmes?", ["Arthur Conan Doyle", "Agatha Christie", "Dorothy L. Sayers", "Wilkie Collins"]],
+      ["Which city is known as the City of Light?", ["Paris", "London", "Rome", "Berlin"]],
+      ["Who was the final emperor of Rome?", ["Romulus Augustulus", "Julius Caesar", "Augustus", "Nero"]],
+      ["Which country led the Apollo program to the Moon?", ["United States", "Soviet Union", "United Kingdom", "China"]],
+      ["What is the capital of Argentina?", ["Buenos Aires", "Santiago", "Lima", "Bogotá"]],
+      ["Which social scientist wrote 'Das Kapital'?", ["Karl Marx", "Adam Smith", "Max Weber", "Friedrich Nietzsche"]],
+      ["Which region is known as the 'Roof of the World'?", ["Tibet", "Patagonia", "The Andes", "The Alps"]],
+      ["Who was the first female Prime Minister of the United Kingdom?", ["Margaret Thatcher", "Theresa May", "Angela Merkel", "Golda Meir"]],
+      ["Which civilization built the city of Petra?", ["Nabataeans", "Romans", "Greeks", "Persians"]],
+      ["What is the largest island in the world?", ["Greenland", "Madagascar", "Borneo", "New Guinea"]],
+      ["Which country is home to the city of Istanbul?", ["Turkey", "Greece", "Egypt", "Iran"]],
+      ["Who painted 'Guernica'?", ["Pablo Picasso", "Salvador Dalí", "Frida Kahlo", "Henri Matisse"]],
+      ["What is the capital of South Korea?", ["Seoul", "Busan", "Incheon", "Daegu"]],
+      ["Which blood type is considered a universal donor?", ["O negative", "A positive", "AB positive", "B negative"]],
+      ["Who won the 2018 FIFA World Cup?", ["France", "Croatia", "Argentina", "Brazil"]],
+      ["What is the deepest ocean trench?", ["Mariana Trench", "Puerto Rico Trench", "Java Trench", "Tonga Trench"]],
+      ["Which hormone is primarily responsible for regulating blood sugar?", ["Insulin", "Adrenaline", "Thyroxine", "Cortisol"]],
+      ["Which city is known as the City of Canals?", ["Venice", "Amsterdam", "Cairo", "Bangkok"]],
+      ["Who wrote 'Hamlet'?", ["William Shakespeare", "Jane Austen", "Charles Dickens", "Leo Tolstoy"]],
+      ["Which country has the longest coastline?", ["Canada", "Australia", "Norway", "Indonesia"]],
+      ["What is the capital of Morocco?", ["Rabat", "Casablanca", "Marrakech", "Tangier"]],
+      ["Which organization was founded in 1945?", ["United Nations", "NATO", "World Bank", "UNESCO"]],
+      ["Who was the first person to orbit Earth?", ["Yuri Gagarin", "Alexei Leonov", "John Glenn", "Valentina Tereshkova"]],
+      ["Which country is home to the ancient city of Babylon?", ["Iraq", "Iran", "Syria", "Saudi Arabia"]],
+      ["Which element is the most abundant in Earth's atmosphere?", ["Nitrogen", "Oxygen", "Carbon dioxide", "Argon"]],
+      ["Who composed 'The Four Seasons'?", ["Antonio Vivaldi", "Johann Sebastian Bach", "Wolfgang Mozart", "George Handel"]],
+      ["What is the capital of Switzerland?", ["Bern", "Zurich", "Geneva", "Basel"]],
+      ["Which metal is liquid at room temperature?", ["Mercury", "Lead", "Tin", "Gallium"]],
+      ["Who directed 'Inception'?", ["Christopher Nolan", "James Cameron", "Denis Villeneuve", "Ridley Scott"]],
+      ["Which country was once ruled by the Ming dynasty?", ["China", "Japan", "Korea", "Vietnam"]],
+      ["What is the largest lake by surface area?", ["Caspian Sea", "Lake Superior", "Lake Victoria", "Lake Baikal"]]
     ];
+
+    const SCIENCE_MATH_BANK = [
+      ["What is the chemical symbol for gold?", ["Au", "Ag", "Cu", "Fe"]],
+      ["What is the square root of 81?", ["9", "7", "8", "10"]],
+      ["Which organ pumps blood around the body?", ["Heart", "Lungs", "Liver", "Brain"]],
+      ["What is the freezing point of water in Celsius?", ["0", "100", "-10", "25"]],
+      ["Which planet is closest to the Sun?", ["Mercury", "Venus", "Mars", "Earth"]],
+      ["What is the powerhouse of the cell?", ["Mitochondria", "Nucleus", "Ribosome", "Membrane"]],
+      ["What is 12 × 8?", ["96", "84", "108", "92"]],
+      ["Which gas do plants absorb from the atmosphere?", ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"]],
+      ["What is the largest mammal?", ["Blue whale", "Elephant", "Giraffe", "Hippopotamus"]],
+      ["Which element has the chemical symbol O?", ["Oxygen", "Gold", "Silver", "Iron"]],
+      ["What is 15% of 200?", ["30", "20", "25", "40"]],
+      ["What is the value of 3^4?", ["81", "64", "72", "27"]],
+      ["Which blood cells carry oxygen?", ["Red blood cells", "White blood cells", "Platelets", "Plasma cells"]],
+      ["What is the acceleration due to gravity on Earth in m/s²?", ["9.8", "4.9", "19.6", "3.2"]],
+      ["Which law states that every action has an equal and opposite reaction?", ["Newton's Third Law", "Hooke's Law", "Boyle's Law", "Ohm's Law"]],
+      ["Which organelle contains the cell's DNA?", ["Nucleus", "Golgi apparatus", "Lysosome", "Cytoplasm"]],
+      ["What is the derivative of x²?", ["2x", "x", "x²", "2x²"]],
+      ["Which planet has the most extensive ring system?", ["Saturn", "Jupiter", "Uranus", "Neptune"]],
+      ["What is the molar mass of water?", ["18 g/mol", "16 g/mol", "20 g/mol", "12 g/mol"]],
+      ["Which particle has a negative charge?", ["Electron", "Proton", "Neutron", "Photon"]],
+      ["Solve: 6x = 48", ["8", "6", "7", "9"]],
+      ["What is the area of a triangle with base 10 and height 6?", ["30", "16", "60", "36"]],
+      ["Which gas is most abundant in Earth's atmosphere?", ["Nitrogen", "Oxygen", "Carbon dioxide", "Argon"]],
+      ["What is the pH of pure water?", ["7", "0", "10", "14"]],
+      ["Which number is irrational?", ["√2", "4", "0.5", "-3"]],
+      ["Which scientist proposed the heliocentric model?", ["Nicolaus Copernicus", "Galileo Galilei", "Johannes Kepler", "Isaac Newton"]],
+      ["What is the sum of the interior angles of a triangle?", ["180°", "90°", "360°", "270°"]],
+      ["Which organ filters blood to form urine?", ["Kidney", "Liver", "Pancreas", "Spleen"]],
+      ["What is the value of 5! ?", ["120", "60", "24", "100"]],
+      ["Which element is represented by Na?", ["Sodium", "Nickel", "Neon", "Nitrogen"]],
+      ["What is the cosine of 0°?", ["1", "0", "-1", "0.5"]],
+      ["Which biome is coldest?", ["Tundra", "Desert", "Forest", "Savanna"]],
+      ["What is the median of 3, 8, 5, 9, 7?", ["7", "8", "5", "9"]],
+      ["Which of these is a prime number?", ["19", "21", "27", "33"]],
+      ["What is the process by which plants make food?", ["Photosynthesis", "Respiration", "Fermentation", "Digestion"]],
+      ["Which force keeps planets in orbit around the Sun?", ["Gravity", "Magnetism", "Friction", "Tension"]],
+      ["What is the SI unit of force?", ["Newton", "Joule", "Watt", "Pascal"]],
+      ["Which type of triangle has all sides equal?", ["Equilateral", "Isosceles", "Scalene", "Right"]],
+      ["What is the value of 2² × 2³?", ["32", "16", "24", "64"]],
+      ["Which part of the eye focuses light?", ["Lens", "Cornea", "Retina", "Pupil"]],
+      ["How many sides does a hexagon have?", ["6", "5", "7", "8"]],
+      ["Which equation is linear?", ["y = 2x + 3", "y = x² + 1", "y = x³", "y = 2/x"]],
+      ["What is the atomic number of carbon?", ["6", "8", "12", "14"]],
+      ["Which planet is famous for its Great Red Spot?", ["Jupiter", "Mars", "Saturn", "Neptune"]],
+      ["What is the speed of light in vacuum approximately?", ["300,000 km/s", "150,000 km/s", "50,000 km/s", "1,000 km/s"]],
+      ["Which geometric shape has no edges?", ["Sphere", "Cube", "Cone", "Pyramid"]],
+      ["What is the mean of 2, 4, 6, 8?", ["5", "6", "4", "7"]],
+      ["Which law relates pressure and volume at constant temperature?", ["Boyle's law", "Newton's law", "Ohm's law", "Avogadro's law"]],
+      ["How many minutes are in 3 hours?", ["180", "150", "200", "120"]],
+      ["Which organ is responsible for producing bile?", ["Liver", "Kidney", "Heart", "Lung"]],
+      ["What is the value of log₁₀(100)?", ["2", "10", "1", "100"]],
+      ["Which particle is found in the nucleus and has no charge?", ["Neutron", "Electron", "Proton", "Meson"]],
+      ["What is the perimeter of a square with side 7?", ["28", "14", "49", "21"]]
+    ];
+
+    const GRADE_8_BANK = {
+      general: [
+        ["Which document limited the power of the English monarchy in 1215?", ["Magna Carta", "Declaration of Independence", "Petition of Right", "Bill of Rights"]],
+        ["Which civilization developed democracy in Athens?", ["Ancient Greeks", "Romans", "Persians", "Phoenicians"]],
+        ["Which line of latitude passes through the middle of Earth?", ["Equator", "Prime Meridian", "Tropic of Cancer", "Arctic Circle"]],
+        ["Which branch of government interprets laws?", ["Judicial", "Executive", "Legislative", "Electoral"]],
+        ["What was the main purpose of the Silk Road?", ["Trade between Asia and Europe", "Military conquest of Africa", "Pilgrimage to Rome", "Settlement of Australia"]],
+        ["Which text is attributed to Confucius's teachings?", ["The Analects", "The Republic", "The Iliad", "The Art of War"]],
+        ["Which natural process breaks rocks into smaller pieces?", ["Weathering", "Condensation", "Deposition", "Transpiration"]],
+        ["Which country controlled India during the height of the Mughal Empire?", ["India", "China", "Turkey", "Afghanistan"]],
+        ["Which economic system is based mainly on private ownership?", ["Capitalism", "Feudalism", "Theocracy", "Communism"]],
+        ["Which US amendment protects freedom of speech?", ["First Amendment", "Second Amendment", "Fourth Amendment", "Fourteenth Amendment"]],
+        ["Which African kingdom was ruled by Mansa Musa?", ["Mali Empire", "Songhai Empire", "Kingdom of Kush", "Aksumite Empire"]],
+        ["Which instrument measures atmospheric pressure?", ["Barometer", "Anemometer", "Hygrometer", "Seismometer"]]
+      ],
+      science: [
+        ["What is the density of an object with mass 50 g and volume 10 cm³?", ["5 g/cm³", "0.2 g/cm³", "40 g/cm³", "60 g/cm³"]],
+        ["Which law explains why a balloon moves forward when air escapes?", ["Newton's Third Law", "Newton's First Law", "Ohm's Law", "Archimedes' Principle"]],
+        ["What is the probability of rolling an even number on a fair six-sided die?", ["1/2", "1/3", "2/3", "1/6"]],
+        ["Which cell structure controls what enters and leaves the cell?", ["Cell membrane", "Cell wall", "Nucleus", "Chloroplast"]]
+      ]
+    };
+
+    const GRADE_9_BANK = {
+      general: [
+        ["Which treaty formally ended World War I?", ["Treaty of Versailles", "Treaty of Paris", "Treaty of Tordesillas", "Treaty of Ghent"]],
+        ["Which civilization used quipu for record keeping?", ["Inca", "Maya", "Aztec", "Sumerian"]],
+        ["Which country was formerly called Persia?", ["Iran", "Iraq", "Syria", "Armenia"]],
+        ["What is the primary purpose of a constitution?", ["Define government powers and rights", "Set currency exchange rates", "Control weather policy", "Appoint every citizen's job"]],
+        ["Which strait separates Europe from Africa?", ["Strait of Gibraltar", "Strait of Hormuz", "Bering Strait", "Bosporus"]],
+        ["Who wrote 'The Wealth of Nations'?", ["Adam Smith", "John Locke", "Karl Marx", "David Ricardo"]],
+        ["Which historical event began in 1789?", ["French Revolution", "Russian Revolution", "Industrial Revolution", "Glorious Revolution"]],
+        ["Which country was divided at the 38th parallel after World War II?", ["Korea", "Vietnam", "Germany", "Poland"]],
+        ["Which court hears cases involving international disputes between states?", ["International Court of Justice", "International Criminal Court", "European Court of Auditors", "Permanent Court of Arbitration"]],
+        ["Which literary movement emphasized reason and order in the 18th century?", ["Neoclassicism", "Romanticism", "Surrealism", "Modernism"]],
+        ["Which city was buried by Mount Vesuvius in AD 79?", ["Pompeii", "Sparta", "Troy", "Alexandria"]],
+        ["Which principle says citizens are subject to the same laws as leaders?", ["Rule of law", "Divine right", "Popular sovereignty", "Separation of powers"]]
+      ],
+      science: [
+        ["If a car travels 150 km in 3 hours, what is its average speed?", ["50 km/h", "45 km/h", "53 km/h", "75 km/h"]],
+        ["Which equation represents conservation of mass in cellular respiration?", ["Glucose + oxygen → carbon dioxide + water", "Water → hydrogen + nitrogen", "Protein → oxygen + glucose", "Carbon dioxide → glucose + nitrogen"]],
+        ["What is the slope of the line through (2, 3) and (6, 11)?", ["2", "1/2", "4", "8"]],
+        ["Which type of bond forms when atoms share electrons?", ["Covalent", "Ionic", "Metallic", "Hydrogen"]]
+      ]
+    };
+
+    const GRADE_10_BANK = {
+      general: [
+        ["Which event directly triggered World War I?", ["Assassination of Archduke Franz Ferdinand", "Invasion of Poland", "Sinking of the Lusitania", "Russian Revolution"]],
+        ["Which philosophy argues that knowledge comes primarily from experience?", ["Empiricism", "Rationalism", "Existentialism", "Stoicism"]],
+        ["Which agreement created the European Union's predecessor, the European Economic Community?", ["Treaty of Rome", "Treaty of Maastricht", "Treaty of Lisbon", "Treaty of Nice"]],
+        ["Which political system gives power to elected representatives?", ["Representative democracy", "Absolute monarchy", "Oligarchy", "Theocracy"]],
+        ["Which novel begins with the line 'Call me Ishmael'?", ["Moby-Dick", "The Old Man and the Sea", "Heart of Darkness", "The Great Gatsby"]],
+        ["Which empire used janissaries as elite soldiers?", ["Ottoman Empire", "Byzantine Empire", "Mali Empire", "Austro-Hungarian Empire"]],
+        ["Which concept describes the movement of people from rural areas to cities?", ["Urbanization", "Globalization", "Industrialization", "Colonization"]],
+        ["Which international organization manages global monetary cooperation?", ["International Monetary Fund", "World Trade Organization", "International Labour Organization", "Red Cross"]],
+        ["Which author wrote 'One Hundred Years of Solitude'?", ["Gabriel García Márquez", "Jorge Luis Borges", "Isabel Allende", "Mario Vargas Llosa"]],
+        ["Which revolution introduced mechanized factory production first?", ["Industrial Revolution", "Agricultural Revolution", "Digital Revolution", "Green Revolution"]],
+        ["Which ancient Greek historian wrote about the Peloponnesian War?", ["Thucydides", "Herodotus", "Plato", "Aristotle"]],
+        ["Which principle divides government authority among branches?", ["Separation of powers", "Collective security", "Federal supremacy", "Judicial review"]]
+      ],
+      science: [
+        ["What is the resultant force on a 4 kg object accelerating at 3 m/s²?", ["12 N", "7 N", "1.33 N", "24 N"]],
+        ["A solution with pH 3 is how many times more acidic than pH 5?", ["100 times", "2 times", "20 times", "1,000 times"]],
+        ["What is the probability of drawing two aces in succession without replacement from a deck?", ["1/221", "1/169", "1/52", "4/52"]],
+        ["Which process creates genetically different gametes?", ["Meiosis", "Mitosis", "Binary fission", "Budding"]]
+      ]
+    };
+
+    const GRADE_11_BANK = {
+      general: [
+        ["Which treaty established the modern borders of much of Europe after Napoleon?", ["Congress of Vienna", "Treaty of Utrecht", "Treaty of Westphalia", "Treaty of Brest-Litovsk"]],
+        ["Which economic measure tracks the total value of goods and services produced domestically?", ["GDP", "CPI", "Gini coefficient", "Balance of payments"]],
+        ["Who developed the concept of the categorical imperative?", ["Immanuel Kant", "John Stuart Mill", "David Hume", "Georg Hegel"]],
+        ["Which empire reached its greatest extent under Trajan?", ["Roman Empire", "Persian Empire", "Mongol Empire", "Byzantine Empire"]],
+        ["Which literary work is an example of magical realism?", ["One Hundred Years of Solitude", "The Divine Comedy", "Beowulf", "The Waste Land"]],
+        ["Which agreement divided newly discovered territories between Spain and Portugal?", ["Treaty of Tordesillas", "Treaty of Zaragoza", "Treaty of Cateau-Cambrésis", "Treaty of Utrecht"]],
+        ["Which term describes rule by a small, powerful group?", ["Oligarchy", "Anarchy", "Plutocracy", "Meritocracy"]],
+        ["Which war is associated with the battles of Gettysburg and Antietam?", ["American Civil War", "American Revolution", "War of 1812", "Mexican-American War"]],
+        ["Which thinker wrote 'The Republic'?", ["Plato", "Aristotle", "Socrates", "Cicero"]],
+        ["Which body has primary responsibility for international peace and security?", ["UN Security Council", "UN General Assembly", "World Court", "NATO Parliamentary Assembly"]],
+        ["Which civilization created the Rosetta Stone's hieroglyphic inscription?", ["Ancient Egyptians", "Ancient Greeks", "Romans", "Carthaginians"]],
+        ["Which term describes a government's authority over its territory?", ["Sovereignty", "Legitimacy", "Jurisdiction", "Federalism"]]
+      ],
+      science: [
+        ["According to Ohm's law, what current flows through 6 Ω at 12 V?", ["2 A", "0.5 A", "6 A", "72 A"]],
+        ["What is the limiting reagent when 2 mol H₂ reacts with 2 mol O₂?", ["H₂", "O₂", "H₂O", "Neither"]],
+        ["Which mechanism increases variation by exchanging DNA between homologous chromosomes?", ["Crossing over", "Translation", "Transcription", "Independent assortment"]],
+        ["What is the integral of 2x from 0 to 3?", ["9", "6", "12", "18"]]
+      ]
+    };
+
+    const GRADE_12_BANK = {
+      general: [
+        ["Which peace settlement ended the Thirty Years' War?", ["Peace of Westphalia", "Treaty of Versailles", "Peace of Augsburg", "Treaty of Nijmegen"]],
+        ["Which theory argues that states act primarily to maximize security in an anarchic system?", ["Realism", "Liberalism", "Constructivism", "Functionalism"]],
+        ["Which philosopher wrote 'Critique of Pure Reason'?", ["Immanuel Kant", "René Descartes", "Baruch Spinoza", "John Locke"]],
+        ["Which event is considered the start of the Protestant Reformation?", ["Martin Luther's Ninety-five Theses", "The Council of Trent", "The English Civil War", "The Peace of Augsburg"]],
+        ["Which empire used the devshirme system to recruit administrators?", ["Ottoman Empire", "Safavid Empire", "Mughal Empire", "Habsburg Empire"]],
+        ["Which concept describes the spread of cultural traits across societies?", ["Cultural diffusion", "Cultural lag", "Ethnocentrism", "Assimilation"]],
+        ["Which work is associated with the phrase 'the banality of evil'?", ["Eichmann in Jerusalem", "The Origins of Totalitarianism", "The Prince", "Leviathan"]],
+        ["Which economic theory emphasizes government spending during recessions?", ["Keynesian economics", "Monetarism", "Classical economics", "Supply-side economics"]],
+        ["Which court prosecutes individuals for genocide and crimes against humanity?", ["International Criminal Court", "International Court of Justice", "European Court of Human Rights", "Permanent Court of Arbitration"]],
+        ["Which historian wrote 'The Decline and Fall of the Roman Empire'?", ["Edward Gibbon", "Thucydides", "Herodotus", "Arnold Toynbee"]],
+        ["Which document proclaimed the independence of the thirteen American colonies?", ["Declaration of Independence", "Articles of Confederation", "Federalist Papers", "Virginia Declaration of Rights"]],
+        ["Which political idea holds that legitimate authority comes from the people?", ["Popular sovereignty", "Divine right", "Laissez-faire", "Collective punishment"]]
+      ],
+      science: [
+        ["What is the derivative of ln(x² + 1)?", ["2x/(x² + 1)", "1/(x² + 1)", "2/(x² + 1)", "ln(2x)"]],
+        ["For a first-order reaction, what happens to its half-life as initial concentration changes?", ["It remains constant", "It doubles", "It halves", "It becomes zero"]],
+        ["Which quantum number describes the shape of an orbital?", ["Azimuthal quantum number", "Principal quantum number", "Magnetic quantum number", "Spin quantum number"]],
+        ["A population in Hardy-Weinberg equilibrium has p = 0.7. What is the frequency of heterozygotes?", ["0.42", "0.49", "0.21", "0.09"]]
+      ]
+    };
+
+    const GRADE_BANKS = [GRADE_8_BANK, GRADE_9_BANK, GRADE_10_BANK, GRADE_11_BANK, GRADE_12_BANK];
+    const QUESTION_SEEDS = Array.from({ length: 10 }, (_, tierIndex) => {
+      const gradeBank = GRADE_BANKS[Math.floor(tierIndex / 2)];
+      const general = shuffle([...gradeBank.general]).slice(0, 8);
+      const science = shuffle([...gradeBank.science]).slice(0, 2);
+      return [...general, ...science];
+    });
 
     function createQuestion(text, options, variant) {
       const offset = variant % options.length;
@@ -350,13 +519,19 @@
     }
 
     function buildQuestionPools() {
-      return QUESTION_SEEDS.map((seeds, tierIndex) => ({
-        tier: tierIndex + 1,
-        questions: Array.from({ length: 150 }, (_, index) => {
-          const seed = seeds[index % seeds.length];
-          return createQuestion(seed[0], seed[1], index);
-        })
-      }));
+      const harderSeedSets = QUESTION_SEEDS.map((seeds, tierIndex) => {
+        const difficultyBoost = tierIndex + 1;
+        return {
+          tier: tierIndex + 1,
+          questions: Array.from({ length: 500 }, (_, index) => {
+            const baseIndex = (index * (difficultyBoost + 3) + tierIndex * 7) % seeds.length;
+            const seed = seeds[baseIndex];
+            return createQuestion(seed[0], seed[1], index + difficultyBoost * 11 + tierIndex * 5);
+          })
+        };
+      });
+
+      return harderSeedSets;
     }
 
     const QUIZ_DATA = buildQuestionPools();
@@ -373,8 +548,15 @@
     let sessionIdx = 0;
     let score = 0;
     let currentCorrectLetter = 'A';
+    const correctSound = new Audio('7 CRORE KBC - SOUND EFFECT [fl6xbIdBSic] (1).mp3');
 
     function playAnswerSound(isCorrect) {
+      if (isCorrect) {
+        correctSound.currentTime = 0;
+        correctSound.play().catch(() => {});
+        return;
+      }
+
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
 
@@ -382,8 +564,8 @@
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      oscillator.type = isCorrect ? 'triangle' : 'sawtooth';
-      oscillator.frequency.setValueAtTime(isCorrect ? 620 : 220, ctx.currentTime);
+      oscillator.type = 'sawtooth';
+      oscillator.frequency.setValueAtTime(220, ctx.currentTime);
       gain.gain.setValueAtTime(0.0001, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.26);
@@ -396,10 +578,10 @@
     }
 
     function buildSession() {
-      // exactly one random question from each of the 10 tiers, in tier order
-      session = QUIZ_DATA.map(tierObj => {
+      // true progressive difficulty: tier 1 to tier 10 in order
+      session = QUIZ_DATA.map((tierObj, index) => {
         const q = shuffle(tierObj.questions)[0];
-        return Object.assign({ tier: tierObj.tier }, q);
+        return Object.assign({ tier: index + 1 }, q);
       });
       sessionIdx = 0;
       score = 0;
@@ -435,13 +617,11 @@
       questionBox.textContent = item.q;
 
       const baseLetters = ['A','B','C','D'];
-      const shuffledLetters = shuffle(baseLetters);
-      const correctIndex = baseLetters.indexOf(item.correct);
-      currentCorrectLetter = shuffledLetters[correctIndex];
+      currentCorrectLetter = item.correct;
 
       optionsGrid.innerHTML = '';
       item.options.forEach((opt, i) => {
-        const letter = shuffledLetters[i];
+        const letter = baseLetters[i];
         const btn = document.createElement('button');
         btn.className = 'option-btn';
         btn.dataset.letter = letter;
