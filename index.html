@@ -269,68 +269,97 @@
 
   <script>
     /* ---------- quiz data ---------- */
-    const QUIZ_DATA = [
-      { tier: 1, questions: [
-        { q: 'Which philosopher wrote the Meditations?', options: ['Marcus Aurelius', 'Socrates', 'Plato', 'Aristotle'], correct: 'A', answer_text: 'Marcus Aurelius' },
-        { q: 'What is the smallest prime number greater than 3?', options: ['5', '7', '11', '2'], correct: 'A', answer_text: '5' },
-        { q: 'Which organelle is primarily responsible for protein synthesis?', options: ['Ribosome', 'Golgi body', 'Lysosome', 'Mitochondrion'], correct: 'A', answer_text: 'Ribosome' },
-        { q: 'Who composed The Four Seasons?', options: ['Antonio Vivaldi', 'Johann Sebastian Bach', 'Wolfgang Mozart', 'Ludwig van Beethoven'], correct: 'A', answer_text: 'Antonio Vivaldi' }
-      ]},
-      { tier: 2, questions: [
-        { q: 'In which year did the Battle of Hastings take place?', options: ['1066', '1215', '1453', '1776'], correct: 'A', answer_text: '1066' },
-        { q: 'Which element has the highest melting point?', options: ['Tungsten', 'Iron', 'Diamond', 'Platinum'], correct: 'A', answer_text: 'Tungsten' },
-        { q: 'What is the capital of Belarus?', options: ['Minsk', 'Prague', 'Warsaw', 'Kyiv'], correct: 'A', answer_text: 'Minsk' },
-        { q: 'Who painted The Birth of Venus?', options: ['Sandro Botticelli', 'Leonardo da Vinci', 'Raphael', 'Titian'], correct: 'A', answer_text: 'Sandro Botticelli' }
-      ]},
-      { tier: 3, questions: [
-        { q: 'Which law states that every object remains in its state of rest or uniform motion unless acted on by an external force?', options: ['Newton\'s First Law', 'Ohm\'s Law', 'Boyle\'s Law', 'Avogadro\'s Law'], correct: 'A', answer_text: 'Newton\'s First Law' },
-        { q: 'What is the term for a word that is spelled the same forwards and backwards?', options: ['Palindrome', 'Anagram', 'Homonym', 'Acrostic'], correct: 'A', answer_text: 'Palindrome' },
-        { q: 'Which language is the basis of much modern computer programming and was created by Guido van Rossum?', options: ['Python', 'Java', 'C++', 'Ruby'], correct: 'A', answer_text: 'Python' },
-        { q: 'Which treaty ended World War I?', options: ['Treaty of Versailles', 'Treaty of Paris', 'Treaty of Tordesillas', 'Treaty of Ghent'], correct: 'A', answer_text: 'Treaty of Versailles' }
-      ]},
-      { tier: 4, questions: [
-        { q: 'Which mountain is the highest in Africa?', options: ['Kilimanjaro', 'Everest', 'Denali', 'Elbrus'], correct: 'A', answer_text: 'Kilimanjaro' },
-        { q: 'What is the oxidation state of sulfur in sulfuric acid (H2SO4)?', options: ['+6', '+2', '+4', '-2'], correct: 'A', answer_text: '+6' },
-        { q: 'Who wrote The Trial?', options: ['Franz Kafka', 'Albert Camus', 'James Joyce', 'George Orwell'], correct: 'A', answer_text: 'Franz Kafka' },
-        { q: 'What is the value of 2^10?', options: ['1024', '512', '2048', '1000'], correct: 'A', answer_text: '1024' }
-      ]},
-      { tier: 5, questions: [
-        { q: 'Which planet has the most extensive ring system?', options: ['Saturn', 'Jupiter', 'Uranus', 'Neptune'], correct: 'A', answer_text: 'Saturn' },
-        { q: 'What is the term for the process by which a solid changes directly into a gas?', options: ['Sublimation', 'Condensation', 'Deposition', 'Evaporation'], correct: 'A', answer_text: 'Sublimation' },
-        { q: 'Who developed the theory of general relativity?', options: ['Albert Einstein', 'Isaac Newton', 'Stephen Hawking', 'Niels Bohr'], correct: 'A', answer_text: 'Albert Einstein' },
-        { q: 'Which of these is not a prime number?', options: ['1', '2', '3', '5'], correct: 'A', answer_text: '1' }
-      ]},
-      { tier: 6, questions: [
-        { q: 'Which scientist is credited with discovering radioactivity in uranium?', options: ['Henri Becquerel', 'Marie Curie', 'Ernest Rutherford', 'Max Planck'], correct: 'A', answer_text: 'Henri Becquerel' },
-        { q: 'What is the name of the longest river in South America?', options: ['Amazon River', 'Orinoco', 'Paraná', 'Madeira'], correct: 'A', answer_text: 'Amazon River' },
-        { q: 'Which composer wrote the opera The Magic Flute?', options: ['Wolfgang Mozart', 'Giuseppe Verdi', 'Richard Wagner', 'Gioachino Rossini'], correct: 'A', answer_text: 'Wolfgang Mozart' },
-        { q: 'In geometry, what is the angle sum of a triangle?', options: ['180°', '90°', '360°', '270°'], correct: 'A', answer_text: '180°' }
-      ]},
-      { tier: 7, questions: [
-        { q: 'Which gas is most abundant in Earth\'s atmosphere?', options: ['Nitrogen', 'Oxygen', 'Carbon dioxide', 'Argon'], correct: 'A', answer_text: 'Nitrogen' },
-        { q: 'What is the name of the process by which a bacterial cell takes up foreign DNA?', options: ['Transformation', 'Transcription', 'Translation', 'Transduction'], correct: 'A', answer_text: 'Transformation' },
-        { q: 'Who wrote the philosophical work The Republic?', options: ['Plato', 'Socrates', 'Aristotle', 'Thucydides'], correct: 'A', answer_text: 'Plato' },
-        { q: 'What is the value of the imaginary unit i squared?', options: ['-1', '1', 'i', '-i'], correct: 'A', answer_text: '-1' }
-      ]},
-      { tier: 8, questions: [
-        { q: 'Which theorem states that a continuous function on a closed interval attains a maximum and a minimum?', options: ['Extreme Value Theorem', 'Pythagorean Theorem', 'Fundamental Theorem of Calculus', 'Mean Value Theorem'], correct: 'A', answer_text: 'Extreme Value Theorem' },
-        { q: 'What is the pH of a neutral solution at 25°C?', options: ['7', '0', '14', '10'], correct: 'A', answer_text: '7' },
-        { q: 'Who painted The Ambassadors?', options: ['Hans Holbein the Younger', 'Rembrandt', 'Caravaggio', 'Jan van Eyck'], correct: 'A', answer_text: 'Hans Holbein the Younger' },
-        { q: 'What is the SI unit of electric resistance?', options: ['Ohm', 'Volt', 'Ampere', 'Watt'], correct: 'A', answer_text: 'Ohm' }
-      ]},
-      { tier: 9, questions: [
-        { q: 'Which law in thermodynamics states that the entropy of an isolated system never decreases?', options: ['Second Law of Thermodynamics', 'First Law of Thermodynamics', 'Zeroth Law of Thermodynamics', 'Third Law of Thermodynamics'], correct: 'A', answer_text: 'Second Law of Thermodynamics' },
-        { q: 'What is the name of the force that resists motion between two surfaces in contact?', options: ['Friction', 'Gravity', 'Magnetism', 'Tension'], correct: 'A', answer_text: 'Friction' },
-        { q: 'Which poet wrote The Waste Land?', options: ['T. S. Eliot', 'Robert Frost', 'W. H. Auden', 'Emily Dickinson'], correct: 'A', answer_text: 'T. S. Eliot' },
-        { q: 'What is the molecular geometry of methane (CH4)?', options: ['Tetrahedral', 'Linear', 'Trigonal planar', 'Octahedral'], correct: 'A', answer_text: 'Tetrahedral' }
-      ]},
-      { tier: 10, questions: [
-        { q: 'Which of the following is the central dogma of molecular biology in the standard form?', options: ['DNA → RNA → Protein', 'RNA → DNA → Protein', 'Protein → RNA → DNA', 'DNA → Protein → RNA'], correct: 'A', answer_text: 'DNA → RNA → Protein' },
-        { q: 'Who formulated the uncertainty principle?', options: ['Werner Heisenberg', 'Max Planck', 'Niels Bohr', 'Albert Einstein'], correct: 'A', answer_text: 'Werner Heisenberg' },
-        { q: 'In topology, what is a torus homeomorphic to?', options: ['S1 × S1', 'S2', 'R2', 'D2'], correct: 'A', answer_text: 'S1 × S1' },
-        { q: 'Which branch of mathematics studies the properties of prime numbers using complex analysis?', options: ['Analytic number theory', 'Topology', 'Combinatorics', 'Differential geometry'], correct: 'A', answer_text: 'Analytic number theory' }
-      ]}
+    const QUESTION_SEEDS = [
+      [
+        ['Which theorem states that every bounded sequence in R^n has a convergent subsequence?', ['Bolzano–Weierstrass theorem', 'Heine–Borel theorem', 'Banach fixed-point theorem', 'Arzelà–Ascoli theorem']],
+        ['Which distribution is the conjugate prior for a Bernoulli likelihood?', ['Beta distribution', 'Gamma distribution', 'Normal distribution', 'Poisson distribution']],
+        ['Which process removes introns from a eukaryotic pre-mRNA?', ['RNA splicing', 'RNA editing', 'Polyadenylation', 'Capping']],
+        ['Which law gives the relationship between entropy and the number of microstates?', ['Boltzmann entropy formula', 'Hooke\'s law', 'Lenz\'s law', 'Planck\'s law']],
+        ['In algebraic topology, what is the fundamental group of the circle?', ['The integers Z', 'The trivial group', 'The integers modulo 2', 'The real numbers R']]
+      ],
+      [
+        ['What is the oxidation state of chromium in dichromate, Cr2O7^2−?', ['+6', '+3', '+7', '+2']],
+        ['Which moon has a thick nitrogen atmosphere and methane lakes?', ['Titan', 'Triton', 'Europa', 'Ganymede']],
+        ['Which theorem relates a line integral around a closed curve to a surface integral?', ['Stokes\' theorem', 'Green\'s theorem', 'Gauss\'s law', 'Cauchy\'s theorem']],
+        ['Which statistical test compares the means of more than two groups?', ['ANOVA', 'Mann–Whitney U', 'Durbin–Watson', 'Kolmogorov–Smirnov']],
+        ['Which economist wrote The General Theory of Employment, Interest and Money?', ['John Maynard Keynes', 'Milton Friedman', 'David Ricardo', 'Joseph Schumpeter']]
+      ],
+      [
+        ['Which enzyme unwinds the DNA double helix during replication?', ['Helicase', 'Ligase', 'Primase', 'Topoisomerase']],
+        ['Which planet is the largest in the Solar System?', ['Jupiter', 'Saturn', 'Earth', 'Neptune']],
+        ['What is the antiderivative of 2x?', ['x^2 + C', 'x + C', '2x^2 + C', 'x^3 + C']],
+        ['Which composer wrote the Brandenburg Concertos?', ['Johann Sebastian Bach', 'George Frideric Handel', 'Antonio Vivaldi', 'Joseph Haydn']],
+        ['Which city is the capital of Kyrgyzstan?', ['Bishkek', 'Dushanbe', 'Tashkent', 'Ashgabat']]
+      ],
+      [
+        ['Who painted The Garden of Earthly Delights?', ['Hieronymus Bosch', 'Pieter Bruegel the Elder', 'Jan van Eyck', 'Albrecht Dürer']],
+        ['Which element has the greatest electronegativity on the Pauling scale?', ['Fluorine', 'Oxygen', 'Chlorine', 'Nitrogen']],
+        ['Which treaty divided newly discovered lands between Spain and Portugal?', ['Treaty of Tordesillas', 'Treaty of Zaragoza', 'Treaty of Cateau-Cambrésis', 'Treaty of Utrecht']],
+        ['What is the molar mass of water?', ['18 g/mol', '16 g/mol', '20 g/mol', '12 g/mol']],
+        ['Which organelle translates messenger RNA into a polypeptide?', ['Ribosome', 'Nucleolus', 'Golgi apparatus', 'Peroxisome']]
+      ],
+      [
+        ['Which moon has a thick nitrogen atmosphere and methane lakes?', ['Titan', 'Triton', 'Europa', 'Ganymede']],
+        ['Which theorem guarantees a root when a continuous function changes sign?', ['Intermediate Value Theorem', 'Mean Value Theorem', 'Extreme Value Theorem', 'Fundamental Theorem of Algebra']],
+        ['Who wrote The Master and Margarita?', ['Mikhail Bulgakov', 'Boris Pasternak', 'Fyodor Dostoevsky', 'Nikolai Gogol']],
+        ['Which battle ended Napoleon\'s rule as emperor?', ['Waterloo', 'Leipzig', 'Austerlitz', 'Borodino']],
+        ['Which language family includes Finnish, Hungarian, and Estonian?', ['Uralic', 'Altaic', 'Dravidian', 'Kartvelian']]
+      ],
+      [
+        ['Who first measured the charge-to-mass ratio of the electron?', ['J. J. Thomson', 'Robert Millikan', 'Ernest Rutherford', 'James Chadwick']],
+        ['Which river forms much of the border between Texas and Mexico?', ['Rio Grande', 'Colorado River', 'Yukon River', 'Brazos River']],
+        ['Which composer wrote the opera Wozzeck?', ['Alban Berg', 'Arnold Schoenberg', 'Anton Webern', 'Gustav Mahler']],
+        ['Which theorem relates a line integral around a closed curve to a surface integral?', ['Stokes\' theorem', 'Green\'s theorem', 'Gauss\'s law', 'Cauchy\'s theorem']],
+        ['Which immunoglobulin crosses the placenta most efficiently?', ['IgG', 'IgA', 'IgM', 'IgE']]
+      ],
+      [
+        ['Which process removes introns from a eukaryotic pre-mRNA?', ['RNA splicing', 'RNA editing', 'Polyadenylation', 'Capping']],
+        ['Which gas law states that pressure is inversely proportional to volume at constant temperature?', ['Boyle\'s law', 'Charles\'s law', 'Graham\'s law', 'Dalton\'s law']],
+        ['Which philosopher defended the categorical imperative?', ['Immanuel Kant', 'G. W. F. Hegel', 'David Hume', 'John Stuart Mill']],
+        ['Which battle is considered the turning point on the Eastern Front in World War II?', ['Stalingrad', 'Kursk', 'Moscow', 'Leningrad']],
+        ['Which number system is used in the RSA cryptosystem\'s key construction?', ['Modular arithmetic', 'Boolean algebra', 'Linear algebra', 'Vector calculus']]
+      ],
+      [
+        ['Which theorem says every bounded sequence in R^n has a convergent subsequence?', ['Bolzano–Weierstrass theorem', 'Heine–Borel theorem', 'Banach fixed-point theorem', 'Arzelà–Ascoli theorem']],
+        ['Which protein complex carries out oxidative phosphorylation in mitochondria?', ['Electron transport chain', 'Ribosome', 'Proteasome', 'Spliceosome']],
+        ['Which painter created Las Meninas?', ['Diego Velázquez', 'Francisco Goya', 'El Greco', 'Bartolomé Murillo']],
+        ['Which international agreement governs the non-navigational uses of international watercourses?', ['UN Watercourses Convention', 'MARPOL Convention', 'Ramsar Convention', 'Basel Convention']],
+        ['Which distribution is the conjugate prior for a Bernoulli likelihood?', ['Beta distribution', 'Gamma distribution', 'Normal distribution', 'Poisson distribution']]
+      ],
+      [
+        ['Which law gives the relationship between entropy and the number of microstates?', ['Boltzmann entropy formula', 'Hooke\'s law', 'Lenz\'s law', 'Planck\'s law']],
+        ['Which philosopher wrote Being and Time?', ['Martin Heidegger', 'Edmund Husserl', 'Jean-Paul Sartre', 'Maurice Merleau-Ponty']],
+        ['Which enzyme synthesizes RNA from a DNA template?', ['RNA polymerase', 'DNA ligase', 'Reverse transcriptase', 'DNA polymerase III']],
+        ['Which curve is the locus of points whose distances from a focus and directrix are equal?', ['Parabola', 'Ellipse', 'Hyperbola', 'Cardioid']],
+        ['Which theorem characterizes compact subsets of Euclidean space as closed and bounded?', ['Heine–Borel theorem', 'Hahn–Banach theorem', 'Riesz representation theorem', 'Lagrange theorem']]
+      ],
+      [
+        ['In algebraic topology, what is the fundamental group of the circle?', ['The integers Z', 'The trivial group', 'The integers modulo 2', 'The real numbers R']],
+        ['Which theorem states that every finite division ring is commutative?', ['Wedderburn\'s little theorem', 'Cayley–Hamilton theorem', 'Sylow theorem', 'Noether isomorphism theorem']],
+        ['Which particle mediates the strong nuclear force?', ['Gluon', 'Photon', 'W boson', 'Graviton']],
+        ['What is the residue of 1/z at z = 0?', ['1', '0', '−1', 'It is undefined']],
+        ['Which result says a sufficiently large integer must contain a prime factor in a specified interval?', ['Bertrand\'s postulate', 'Fermat\'s Last Theorem', 'Wilson\'s theorem', 'Dirichlet\'s theorem']]
+      ]
     ];
+
+    function createQuestion(text, options, variant) {
+      const offset = variant % options.length;
+      const rotated = options.slice(offset).concat(options.slice(0, offset));
+      const correctIndex = (options.length - offset) % options.length;
+      return { q: text, options: rotated, correct: ['A', 'B', 'C', 'D'][correctIndex], answer_text: options[0] };
+    }
+
+    function buildQuestionPools() {
+      return QUESTION_SEEDS.map((seeds, tierIndex) => ({
+        tier: tierIndex + 1,
+        questions: Array.from({ length: 150 }, (_, index) => {
+          const seed = seeds[index % seeds.length];
+          return createQuestion(seed[0], seed[1], index);
+        })
+      }));
+    }
+
+    const QUIZ_DATA = buildQuestionPools();
     function shuffle(arr) {
       const a = arr.slice();
       for (let i = a.length - 1; i > 0; i--) {
@@ -344,6 +373,27 @@
     let sessionIdx = 0;
     let score = 0;
     let currentCorrectLetter = 'A';
+
+    function playAnswerSound(isCorrect) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.type = isCorrect ? 'triangle' : 'sawtooth';
+      oscillator.frequency.setValueAtTime(isCorrect ? 620 : 220, ctx.currentTime);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.26);
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.28);
+      oscillator.onended = () => ctx.close();
+    }
 
     function buildSession() {
       // exactly one random question from each of the 10 tiers, in tier order
@@ -419,12 +469,14 @@
       allBtns.forEach(b => b.disabled = true);
 
       const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
+      const isCorrect = letter === currentCorrectLetter;
       if (correctBtn) correctBtn.classList.add('correct');
-      if (letter !== currentCorrectLetter) {
+      if (!isCorrect) {
         btnEl.classList.add('incorrect');
       } else {
         score++;
       }
+      playAnswerSound(isCorrect);
       stopTimer();
       revealBtn.disabled = true;
       nextBtn.disabled = false;
