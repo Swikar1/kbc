@@ -8,34 +8,228 @@
     --bg-color: #ffffff;
     --dot-color: #2563eb;
     --tile-size: 250px;
+    --text-main: #1e293b;
+    --text-sub: #94a3b8;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --red: #ef4444;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --border: #e2e8f0;
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
-    height: 100%;
+    min-height: 100%;
     width: 100%;
-    overflow: hidden;
-    background: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
   }
 
   .polka-bg {
     position: fixed;
     inset: 0;
-    background-color: var(--bg-color);
+    z-index: -1;
+    background-color: #f8fbff;
+    background-image: radial-gradient(circle, rgba(37, 99, 235, 0.9) 1.6px, transparent 1.9px),
+                      radial-gradient(circle, rgba(147, 197, 253, 0.9) 1.6px, transparent 1.9px);
+    background-position: 0 0, 17px 17px;
+    background-size: 34px 34px;
     background-repeat: repeat;
-    background-size: var(--tile-size) var(--tile-size);
-    animation: drift 35s linear infinite;
+    animation: drift 18s linear infinite;
+  }
+  @keyframes drift {
+    from { background-position: 0 0, 17px 17px; }
+    to   { background-position: 34px 0, 51px 17px; }
   }
 
-  /* Moves the tiled background to the right, so dots drift left -> right */
-  @keyframes drift {
-    from { background-position: 0 0; }
-    to   { background-position: 250px 0; }
+  .wrap {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 22px;
+    box-shadow: 0 12px 44px rgba(30,41,59,0.14);
+    padding: 30px 28px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .progress-text {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-sub);
+    letter-spacing: 0.02em;
+  }
+
+  .progress-bar-track {
+    width: 100%;
+    height: 5px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .question-box {
+    min-height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1.5;
+    padding: 4px 4px 24px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    color: var(--text-main);
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.05s ease;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); }
+  .option-btn:active:not(:disabled) { transform: scale(0.98); }
+  .option-btn:disabled { cursor: default; }
+
+  .option-letter {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .option-btn.correct { background: var(--green-bg); border-color: var(--green-border); color: #166534; }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.incorrect { background: var(--red-bg); border-color: var(--red-border); color: #991b1b; }
+  .option-btn.incorrect .option-letter { background: var(--red); color: #fff; }
+
+  .timer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .timer-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .timer-circle.running { border-color: var(--accent); color: var(--accent-dark); }
+  .timer-circle.warning { border-color: var(--red); color: var(--red); }
+
+  .timer-btn {
+    border: none;
+    background: #f1f5f9;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  .timer-btn:hover:not(:disabled) { filter: brightness(0.95); }
+  .timer-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .btn-next {
+    width: 100%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    padding: 13px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.05s ease;
+  }
+  .btn-next:active { transform: scale(0.98); }
+  .btn-next:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-next:disabled { opacity: 0.5; cursor: default; }
+
+  .btn-reveal {
+    width: 100%;
+    border: 1px solid rgba(37,99,235,0.35);
+    background: rgba(37,99,235,0.08);
+    color: var(--accent-dark);
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: filter 0.15s ease, opacity 0.15s ease;
+  }
+  .btn-reveal:hover:not(:disabled) { filter: brightness(0.98); }
+  .btn-reveal:disabled { opacity: 0.5; cursor: default; }
+
+  .score-box { text-align: center; }
+  .score-box h2 { font-size: 1.5rem; margin-bottom: 10px; }
+  .score-box p { color: var(--text-sub); margin-bottom: 22px; font-size: 1rem; }
+
+  @media (max-width: 480px) {
+    .card { padding: 24px 18px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .question-box { font-size: 1.05rem; min-height: 70px; }
   }
 </style>
 </head>
@@ -43,54 +237,267 @@
 
   <div class="polka-bg" id="polkaBg"></div>
 
+  <div class="wrap">
+    <div class="card">
+      <div id="quizArea">
+        <div class="card-top">
+          <span class="progress-text" id="progressText">1 / 10</span>
+          <span class="progress-text" id="tierText">Tier 1</span>
+        </div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+        <div class="question-box" id="questionBox"></div>
+
+        <div class="options-grid" id="optionsGrid"></div>
+
+        <div class="timer-row">
+          <div class="timer-circle" id="timerCircle">30</div>
+          <button class="timer-btn" id="timerBtn">Start Timer</button>
+        </div>
+
+        <button class="btn-reveal" id="revealBtn">Reveal Answer</button>
+        <button class="btn-next" id="nextBtn" disabled>Next</button>
+      </div>
+
+      <div class="score-box" id="scoreBox" style="display:none;">
+        <h2>Done!</h2>
+        <p id="finalScoreText"></p>
+        <button class="btn-next" id="restartBtn">New Quiz</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Build a seamlessly-tileable canvas with a "semi-scattered" pattern:
-    // a grid of cells, each holding one dot nudged by a random jitter.
-    // This keeps roughly even coverage while avoiding a rigid, aligned look.
-    const tileSize = 250;
-    const cellSize = 22;        // base spacing between dots
-    const jitter = 8;           // max random offset from the cell center
-    const dotColor = '#2563eb';
-
-    const canvas = document.createElement('canvas');
-    canvas.width = tileSize;
-    canvas.height = tileSize;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = dotColor;
-
-    function drawDot(x, y, r) {
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    const cols = Math.round(tileSize / cellSize);
-    const rows = Math.round(tileSize / cellSize);
-
-    for (let cx = 0; cx < cols; cx++) {
-      for (let cy = 0; cy < rows; cy++) {
-        const baseX = cx * cellSize + cellSize / 2;
-        const baseY = cy * cellSize + cellSize / 2;
-        const x = baseX + (Math.random() - 0.5) * jitter * 2;
-        const y = baseY + (Math.random() - 0.5) * jitter * 2;
-        const r = 1 + Math.random() * 1.3;
-
-        // Draw wrap-around copies at the tile edges so the pattern
-        // repeats seamlessly with no visible seams
-        drawDot(x, y, r);
-        drawDot(x - tileSize, y, r);
-        drawDot(x + tileSize, y, r);
-        drawDot(x, y - tileSize, r);
-        drawDot(x, y + tileSize, r);
-        drawDot(x - tileSize, y - tileSize, r);
-        drawDot(x + tileSize, y - tileSize, r);
-        drawDot(x - tileSize, y + tileSize, r);
-        drawDot(x + tileSize, y + tileSize, r);
+    /* ---------- quiz data ---------- */
+    const QUIZ_DATA = [
+      { tier: 1, questions: [
+        { q: 'Which philosopher wrote the Meditations?', options: ['Marcus Aurelius', 'Socrates', 'Plato', 'Aristotle'], correct: 'A', answer_text: 'Marcus Aurelius' },
+        { q: 'What is the smallest prime number greater than 3?', options: ['5', '7', '11', '2'], correct: 'A', answer_text: '5' },
+        { q: 'Which organelle is primarily responsible for protein synthesis?', options: ['Ribosome', 'Golgi body', 'Lysosome', 'Mitochondrion'], correct: 'A', answer_text: 'Ribosome' },
+        { q: 'Who composed The Four Seasons?', options: ['Antonio Vivaldi', 'Johann Sebastian Bach', 'Wolfgang Mozart', 'Ludwig van Beethoven'], correct: 'A', answer_text: 'Antonio Vivaldi' }
+      ]},
+      { tier: 2, questions: [
+        { q: 'In which year did the Battle of Hastings take place?', options: ['1066', '1215', '1453', '1776'], correct: 'A', answer_text: '1066' },
+        { q: 'Which element has the highest melting point?', options: ['Tungsten', 'Iron', 'Diamond', 'Platinum'], correct: 'A', answer_text: 'Tungsten' },
+        { q: 'What is the capital of Belarus?', options: ['Minsk', 'Prague', 'Warsaw', 'Kyiv'], correct: 'A', answer_text: 'Minsk' },
+        { q: 'Who painted The Birth of Venus?', options: ['Sandro Botticelli', 'Leonardo da Vinci', 'Raphael', 'Titian'], correct: 'A', answer_text: 'Sandro Botticelli' }
+      ]},
+      { tier: 3, questions: [
+        { q: 'Which law states that every object remains in its state of rest or uniform motion unless acted on by an external force?', options: ['Newton\'s First Law', 'Ohm\'s Law', 'Boyle\'s Law', 'Avogadro\'s Law'], correct: 'A', answer_text: 'Newton\'s First Law' },
+        { q: 'What is the term for a word that is spelled the same forwards and backwards?', options: ['Palindrome', 'Anagram', 'Homonym', 'Acrostic'], correct: 'A', answer_text: 'Palindrome' },
+        { q: 'Which language is the basis of much modern computer programming and was created by Guido van Rossum?', options: ['Python', 'Java', 'C++', 'Ruby'], correct: 'A', answer_text: 'Python' },
+        { q: 'Which treaty ended World War I?', options: ['Treaty of Versailles', 'Treaty of Paris', 'Treaty of Tordesillas', 'Treaty of Ghent'], correct: 'A', answer_text: 'Treaty of Versailles' }
+      ]},
+      { tier: 4, questions: [
+        { q: 'Which mountain is the highest in Africa?', options: ['Kilimanjaro', 'Everest', 'Denali', 'Elbrus'], correct: 'A', answer_text: 'Kilimanjaro' },
+        { q: 'What is the oxidation state of sulfur in sulfuric acid (H2SO4)?', options: ['+6', '+2', '+4', '-2'], correct: 'A', answer_text: '+6' },
+        { q: 'Who wrote The Trial?', options: ['Franz Kafka', 'Albert Camus', 'James Joyce', 'George Orwell'], correct: 'A', answer_text: 'Franz Kafka' },
+        { q: 'What is the value of 2^10?', options: ['1024', '512', '2048', '1000'], correct: 'A', answer_text: '1024' }
+      ]},
+      { tier: 5, questions: [
+        { q: 'Which planet has the most extensive ring system?', options: ['Saturn', 'Jupiter', 'Uranus', 'Neptune'], correct: 'A', answer_text: 'Saturn' },
+        { q: 'What is the term for the process by which a solid changes directly into a gas?', options: ['Sublimation', 'Condensation', 'Deposition', 'Evaporation'], correct: 'A', answer_text: 'Sublimation' },
+        { q: 'Who developed the theory of general relativity?', options: ['Albert Einstein', 'Isaac Newton', 'Stephen Hawking', 'Niels Bohr'], correct: 'A', answer_text: 'Albert Einstein' },
+        { q: 'Which of these is not a prime number?', options: ['1', '2', '3', '5'], correct: 'A', answer_text: '1' }
+      ]},
+      { tier: 6, questions: [
+        { q: 'Which scientist is credited with discovering radioactivity in uranium?', options: ['Henri Becquerel', 'Marie Curie', 'Ernest Rutherford', 'Max Planck'], correct: 'A', answer_text: 'Henri Becquerel' },
+        { q: 'What is the name of the longest river in South America?', options: ['Amazon River', 'Orinoco', 'Paraná', 'Madeira'], correct: 'A', answer_text: 'Amazon River' },
+        { q: 'Which composer wrote the opera The Magic Flute?', options: ['Wolfgang Mozart', 'Giuseppe Verdi', 'Richard Wagner', 'Gioachino Rossini'], correct: 'A', answer_text: 'Wolfgang Mozart' },
+        { q: 'In geometry, what is the angle sum of a triangle?', options: ['180°', '90°', '360°', '270°'], correct: 'A', answer_text: '180°' }
+      ]},
+      { tier: 7, questions: [
+        { q: 'Which gas is most abundant in Earth\'s atmosphere?', options: ['Nitrogen', 'Oxygen', 'Carbon dioxide', 'Argon'], correct: 'A', answer_text: 'Nitrogen' },
+        { q: 'What is the name of the process by which a bacterial cell takes up foreign DNA?', options: ['Transformation', 'Transcription', 'Translation', 'Transduction'], correct: 'A', answer_text: 'Transformation' },
+        { q: 'Who wrote the philosophical work The Republic?', options: ['Plato', 'Socrates', 'Aristotle', 'Thucydides'], correct: 'A', answer_text: 'Plato' },
+        { q: 'What is the value of the imaginary unit i squared?', options: ['-1', '1', 'i', '-i'], correct: 'A', answer_text: '-1' }
+      ]},
+      { tier: 8, questions: [
+        { q: 'Which theorem states that a continuous function on a closed interval attains a maximum and a minimum?', options: ['Extreme Value Theorem', 'Pythagorean Theorem', 'Fundamental Theorem of Calculus', 'Mean Value Theorem'], correct: 'A', answer_text: 'Extreme Value Theorem' },
+        { q: 'What is the pH of a neutral solution at 25°C?', options: ['7', '0', '14', '10'], correct: 'A', answer_text: '7' },
+        { q: 'Who painted The Ambassadors?', options: ['Hans Holbein the Younger', 'Rembrandt', 'Caravaggio', 'Jan van Eyck'], correct: 'A', answer_text: 'Hans Holbein the Younger' },
+        { q: 'What is the SI unit of electric resistance?', options: ['Ohm', 'Volt', 'Ampere', 'Watt'], correct: 'A', answer_text: 'Ohm' }
+      ]},
+      { tier: 9, questions: [
+        { q: 'Which law in thermodynamics states that the entropy of an isolated system never decreases?', options: ['Second Law of Thermodynamics', 'First Law of Thermodynamics', 'Zeroth Law of Thermodynamics', 'Third Law of Thermodynamics'], correct: 'A', answer_text: 'Second Law of Thermodynamics' },
+        { q: 'What is the name of the force that resists motion between two surfaces in contact?', options: ['Friction', 'Gravity', 'Magnetism', 'Tension'], correct: 'A', answer_text: 'Friction' },
+        { q: 'Which poet wrote The Waste Land?', options: ['T. S. Eliot', 'Robert Frost', 'W. H. Auden', 'Emily Dickinson'], correct: 'A', answer_text: 'T. S. Eliot' },
+        { q: 'What is the molecular geometry of methane (CH4)?', options: ['Tetrahedral', 'Linear', 'Trigonal planar', 'Octahedral'], correct: 'A', answer_text: 'Tetrahedral' }
+      ]},
+      { tier: 10, questions: [
+        { q: 'Which of the following is the central dogma of molecular biology in the standard form?', options: ['DNA → RNA → Protein', 'RNA → DNA → Protein', 'Protein → RNA → DNA', 'DNA → Protein → RNA'], correct: 'A', answer_text: 'DNA → RNA → Protein' },
+        { q: 'Who formulated the uncertainty principle?', options: ['Werner Heisenberg', 'Max Planck', 'Niels Bohr', 'Albert Einstein'], correct: 'A', answer_text: 'Werner Heisenberg' },
+        { q: 'In topology, what is a torus homeomorphic to?', options: ['S1 × S1', 'S2', 'R2', 'D2'], correct: 'A', answer_text: 'S1 × S1' },
+        { q: 'Which branch of mathematics studies the properties of prime numbers using complex analysis?', options: ['Analytic number theory', 'Topology', 'Combinatorics', 'Differential geometry'], correct: 'A', answer_text: 'Analytic number theory' }
+      ]}
+    ];
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
       }
+      return a;
     }
 
-    const dataUrl = canvas.toDataURL();
-    document.getElementById('polkaBg').style.backgroundImage = 'url(' + dataUrl + ')';
+    let session = [];
+    let sessionIdx = 0;
+    let score = 0;
+    let currentCorrectLetter = 'A';
+
+    function buildSession() {
+      // exactly one random question from each of the 10 tiers, in tier order
+      session = QUIZ_DATA.map(tierObj => {
+        const q = shuffle(tierObj.questions)[0];
+        return Object.assign({ tier: tierObj.tier }, q);
+      });
+      sessionIdx = 0;
+      score = 0;
+    }
+
+    const progressText = document.getElementById('progressText');
+    const tierText = document.getElementById('tierText');
+    const progressFill = document.getElementById('progressFill');
+    const questionBox = document.getElementById('questionBox');
+    const optionsGrid = document.getElementById('optionsGrid');
+    const revealBtn = document.getElementById('revealBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const quizArea = document.getElementById('quizArea');
+    const scoreBox = document.getElementById('scoreBox');
+    const finalScoreText = document.getElementById('finalScoreText');
+    const restartBtn = document.getElementById('restartBtn');
+    const timerBtn = document.getElementById('timerBtn');
+    const timerCircle = document.getElementById('timerCircle');
+
+    function loadQuestion() {
+      if (sessionIdx >= session.length) {
+        showFinalScore();
+        return;
+      }
+      stopTimer();
+      revealBtn.disabled = false;
+      nextBtn.disabled = true;
+
+      const item = session[sessionIdx];
+      progressText.textContent = (sessionIdx + 1) + ' / ' + session.length;
+      tierText.textContent = 'Tier ' + item.tier;
+      progressFill.style.width = (sessionIdx / session.length * 100) + '%';
+      questionBox.textContent = item.q;
+
+      const baseLetters = ['A','B','C','D'];
+      const shuffledLetters = shuffle(baseLetters);
+      const correctIndex = baseLetters.indexOf(item.correct);
+      currentCorrectLetter = shuffledLetters[correctIndex];
+
+      optionsGrid.innerHTML = '';
+      item.options.forEach((opt, i) => {
+        const letter = shuffledLetters[i];
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.dataset.letter = letter;
+        btn.innerHTML = '<span class="option-letter">' + letter + '</span><span>' + opt + '</span>';
+        btn.addEventListener('click', () => selectOption(letter, btn));
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function revealAnswer() {
+      const allBtns = [...optionsGrid.children];
+      if (!allBtns.length) return;
+      if (allBtns.some(b => b.disabled)) return;
+
+      const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
+      allBtns.forEach(b => b.disabled = true);
+      if (correctBtn) correctBtn.classList.add('correct');
+      revealBtn.disabled = true;
+      nextBtn.disabled = false;
+    }
+
+    function selectOption(letter, btnEl) {
+      const allBtns = [...optionsGrid.children];
+      if (allBtns.some(b => b.disabled)) return; // already answered
+      allBtns.forEach(b => b.disabled = true);
+
+      const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
+      if (correctBtn) correctBtn.classList.add('correct');
+      if (letter !== currentCorrectLetter) {
+        btnEl.classList.add('incorrect');
+      } else {
+        score++;
+      }
+      stopTimer();
+      revealBtn.disabled = true;
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      sessionIdx++;
+      loadQuestion();
+    });
+
+    revealBtn.addEventListener('click', revealAnswer);
+
+    function showFinalScore() {
+      quizArea.style.display = 'none';
+      scoreBox.style.display = 'block';
+      finalScoreText.textContent = 'Score: ' + score + ' / ' + session.length;
+    }
+
+    restartBtn.addEventListener('click', () => {
+      quizArea.style.display = 'block';
+      scoreBox.style.display = 'none';
+      buildSession();
+      loadQuestion();
+    });
+
+    /* ---------- independent 30s timer (always startable/stoppable) ---------- */
+    let timerInterval = null;
+    let timeLeft = 30;
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('running', 'warning');
+      timerBtn.disabled = false;
+      timerBtn.textContent = 'Start Timer';
+    }
+
+    function startTimer() {
+      if (timerInterval !== null) return;
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerCircle.classList.remove('warning');
+      timerCircle.classList.add('running');
+      timerBtn.disabled = true;
+      timerBtn.textContent = 'Running...';
+
+      timerInterval = setInterval(function () {
+        timeLeft = timeLeft - 1;
+        if (timeLeft <= 0) {
+          timerCircle.textContent = '0';
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerBtn.disabled = false;
+          timerBtn.textContent = 'Start Timer';
+          timerCircle.classList.remove('running');
+          return;
+        }
+        timerCircle.textContent = timeLeft;
+        if (timeLeft <= 10) {
+          timerCircle.classList.add('warning');
+        }
+      }, 1000);
+    }
+
+    timerBtn.addEventListener('click', startTimer);
+
+    /* ---------- init ---------- */
+    buildSession();
+    loadQuestion();
   </script>
 
 </body>
