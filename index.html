@@ -1275,16 +1275,24 @@
     function useCallFriend() {
       if (callUsed) return;
 
+      const currentTier = Number((session[sessionIdx] && session[sessionIdx].tier) || 1);
       const letters = ['A', 'B', 'C', 'D'];
       const weighted = letters.map(letter => {
         const isCorrect = letter === currentCorrectLetter;
-        let weight = isCorrect ? 0.72 : 0.12;
+        let weight = isCorrect ? 0.42 : 0.18;
+
         if (selectedLetter && letter === selectedLetter) {
-          weight = isCorrect ? 0.78 : 0.2;
+          weight = isCorrect ? 0.48 : 0.24;
         }
+
+        if (currentTier <= 5) {
+          weight -= isCorrect ? 0.18 : 0.06;
+        }
+
         if (!isCorrect && letter !== selectedLetter) {
           weight += Math.random() * 0.18;
         }
+
         return { letter, weight };
       });
 
@@ -1297,13 +1305,17 @@
     function useAudiencePoll() {
       if (pollUsed) return;
 
-      const letterWeights = {};
+      const currentTier = Number((session[sessionIdx] && session[sessionIdx].tier) || 1);
       const letters = ['A', 'B', 'C', 'D'];
+      const letterWeights = {};
+
       letters.forEach(letter => {
-        if (letter === currentCorrectLetter) {
-          letterWeights[letter] = 0.56 + Math.random() * 0.22;
+        const isCorrect = letter === currentCorrectLetter;
+        const earlyRoundPenalty = currentTier <= 5 ? 0.18 : 0;
+        if (isCorrect) {
+          letterWeights[letter] = 0.38 + Math.random() * 0.2 - earlyRoundPenalty;
         } else {
-          letterWeights[letter] = 0.08 + Math.random() * 0.22;
+          letterWeights[letter] = 0.16 + Math.random() * 0.22 + earlyRoundPenalty;
         }
       });
 
