@@ -151,6 +151,16 @@
   .option-btn.correct .option-letter { background: var(--green); color: #fff; }
   .option-btn.incorrect { background: var(--red-bg); border-color: var(--red-border); color: #991b1b; }
   .option-btn.incorrect .option-letter { background: var(--red); color: #fff; }
+  .option-btn.locked {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+    color: #78350f;
+    box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.25);
+  }
+  .option-btn.locked .option-letter {
+    background: #f59e0b;
+    color: #fff;
+  }
 
   .timer-row {
     display: flex;
@@ -206,7 +216,24 @@
   .btn-next:hover:not(:disabled) { background: var(--accent-dark); }
   .btn-next:disabled { opacity: 0.5; cursor: default; }
 
-  .btn-reveal {
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: rgba(37,99,235,0.04);
+    box-shadow: inset 0 0 0 1px rgba(37,99,235,0.08);
+  }
+
+  .lifeline-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .btn-lock,
+  .btn-reveal,
+  .btn-fifty,
+  .btn-call,
+  .btn-poll {
     width: 100%;
     border: 1px solid rgba(37,99,235,0.35);
     background: rgba(37,99,235,0.08);
@@ -219,8 +246,29 @@
     margin-bottom: 10px;
     transition: filter 0.15s ease, opacity 0.15s ease;
   }
-  .btn-reveal:hover:not(:disabled) { filter: brightness(0.98); }
-  .btn-reveal:disabled { opacity: 0.5; cursor: default; }
+  .btn-lock:hover:not(:disabled),
+  .btn-reveal:hover:not(:disabled),
+  .btn-fifty:hover:not(:disabled),
+  .btn-call:hover:not(:disabled),
+  .btn-poll:hover:not(:disabled) { filter: brightness(0.98); }
+  .btn-lock:disabled,
+  .btn-reveal:disabled,
+  .btn-fifty:disabled,
+  .btn-call:disabled,
+  .btn-poll:disabled { opacity: 0.5; cursor: default; }
+
+  .status-box {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    color: var(--text-main);
+    font-size: 0.8rem;
+    min-height: 58px;
+  }
+
+  .status-box strong { display: block; margin-bottom: 4px; }
 
   .score-box { text-align: center; }
   .score-box h2 { font-size: 1.5rem; margin-bottom: 10px; }
@@ -255,7 +303,18 @@
           <button class="timer-btn" id="timerBtn">Start Timer</button>
         </div>
 
-        <button class="btn-reveal" id="revealBtn">Reveal Answer</button>
+        <div class="lifeline-bar">
+          <button class="btn-fifty" id="fiftyBtn">50-50</button>
+          <button class="btn-call" id="callBtn">Call a Friend</button>
+          <button class="btn-poll" id="pollBtn">Audience Poll</button>
+        </div>
+
+        <div class="status-box" id="lifelineStatus">
+          <strong>Lifelines</strong>
+        </div>
+
+        <button class="btn-lock" id="lockBtn" disabled>Lock Answer</button>
+        <button class="btn-reveal" id="revealBtn" disabled>Reveal Answer</button>
         <button class="btn-next" id="nextBtn" disabled>Next</button>
       </div>
 
@@ -1048,46 +1107,50 @@
     let sessionIdx = 0;
     let score = 0;
     let currentCorrectLetter = 'A';
-    const correctSound = new Audio('7 CRORE KBC - SOUND EFFECT [fl6xbIdBSic] (1).mp3');
+    let selectedLetter = null;
+    let answerLocked = false;
+    let fiftyUsed = false;
+    let callUsed = false;
+    let pollUsed = false;
+    const correctAnswerAudio = new Audio('./' + encodeURIComponent('7 CRORE KBC - SOUND EFFECT [fl6xbIdBSic].mp3'));
 
     function playAnswerSound(isCorrect) {
-      if (isCorrect) {
-        correctSound.currentTime = 0;
-        correctSound.play().catch(() => {});
-        return;
-      }
-
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-
-      const ctx = new AudioCtx();
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      oscillator.type = 'sawtooth';
-      oscillator.frequency.setValueAtTime(220, ctx.currentTime);
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.12, ctx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.26);
-
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.28);
-      oscillator.onended = () => ctx.close();
+      if (!isCorrect) return;
+      correctAnswerAudio.pause();
+      correctAnswerAudio.currentTime = 0;
+      correctAnswerAudio.volume = 1;
+      correctAnswerAudio.play().catch(() => {});
     }
+
+    const BONUS_HARD_QUESTIONS = [
+      { q: 'Which process in cellular respiration produces the most ATP?', options: ['Glycolysis', 'Krebs cycle', 'Electron transport chain', 'Fermentation'], correct: 'C', tier: 10 },
+      { q: 'In evolutionary biology, what is the term for structures with a common ancestry but different functions?', options: ['Analogous structures', 'Homologous structures', 'Vestigial structures', 'Adaptive structures'], correct: 'B', tier: 10 },
+      { q: 'Which of these is the largest prime factor of 1,024?', options: ['2', '3', '5', '17'], correct: 'A', tier: 10 },
+      { q: 'Who developed the theory of general relativity?', options: ['Isaac Newton', 'Albert Einstein', 'Nikola Tesla', 'Stephen Hawking'], correct: 'B', tier: 10 },
+      { q: 'Which part of the human brain is primarily responsible for balance and coordination?', options: ['Cerebrum', 'Cerebellum', 'Medulla oblongata', 'Hypothalamus'], correct: 'B', tier: 10 }
+    ];
 
     function buildSession() {
       // Re-roll the seed pools each time so restarts pull fresh variety
       // from the much larger question bank instead of the same fixed subset.
       QUIZ_DATA = buildQuestionPools();
-      // true progressive difficulty: tier 1 to tier 10 in order
-      session = QUIZ_DATA.map((tierObj, index) => {
+      // true progressive difficulty: tier 1 to tier 10 in order, then five added tougher questions at the end
+      const regularQuestions = QUIZ_DATA.map((tierObj, index) => {
         const q = shuffle(tierObj.questions)[0];
         return Object.assign({ tier: index + 1 }, q);
       });
+      session = regularQuestions.concat(BONUS_HARD_QUESTIONS.map(item => ({
+        q: item.q,
+        options: item.options,
+        correct: item.correct,
+        answer_text: item.options[0],
+        tier: item.tier
+      })));
       sessionIdx = 0;
       score = 0;
+      fiftyUsed = false;
+      callUsed = false;
+      pollUsed = false;
     }
 
     const progressText = document.getElementById('progressText');
@@ -1096,6 +1159,11 @@
     const questionBox = document.getElementById('questionBox');
     const optionsGrid = document.getElementById('optionsGrid');
     const revealBtn = document.getElementById('revealBtn');
+    const lockBtn = document.getElementById('lockBtn');
+    const fiftyBtn = document.getElementById('fiftyBtn');
+    const callBtn = document.getElementById('callBtn');
+    const pollBtn = document.getElementById('pollBtn');
+    const lifelineStatus = document.getElementById('lifelineStatus');
     const nextBtn = document.getElementById('nextBtn');
     const quizArea = document.getElementById('quizArea');
     const scoreBox = document.getElementById('scoreBox');
@@ -1103,6 +1171,43 @@
     const restartBtn = document.getElementById('restartBtn');
     const timerBtn = document.getElementById('timerBtn');
     const timerCircle = document.getElementById('timerCircle');
+    const questionIntroAudio = new Audio('./' + encodeURIComponent('Kbc question opening mp3 [6Nmm63pN5sA].mp3'));
+    const tickAudio = new Audio('./' + encodeURIComponent('30 second tic tic kbc clock [6BvpEAGNGHg].mp3'));
+    let audioUnlocked = false;
+
+    function unlockAudio() {
+      if (audioUnlocked) return;
+      audioUnlocked = true;
+      questionIntroAudio.muted = false;
+      tickAudio.muted = false;
+      questionIntroAudio.volume = 1;
+      tickAudio.volume = 0.8;
+    }
+
+    function playQuestionIntro() {
+      unlockAudio();
+      questionIntroAudio.pause();
+      questionIntroAudio.currentTime = 0;
+      questionIntroAudio.play().catch(() => {});
+    }
+
+    function playTickSound() {
+      unlockAudio();
+      tickAudio.pause();
+      tickAudio.currentTime = 0;
+      tickAudio.loop = true;
+      tickAudio.play().catch(() => {});
+    }
+
+    function stopTickSound() {
+      try {
+        tickAudio.pause();
+        tickAudio.currentTime = 0;
+        tickAudio.loop = false;
+      } catch (error) {
+        // ignore when audio is unavailable
+      }
+    }
 
     function loadQuestion() {
       if (sessionIdx >= session.length) {
@@ -1110,7 +1215,14 @@
         return;
       }
       stopTimer();
-      revealBtn.disabled = false;
+      selectedLetter = null;
+      answerLocked = false;
+      revealBtn.disabled = true;
+      lockBtn.disabled = true;
+      fiftyBtn.disabled = fiftyUsed;
+      callBtn.disabled = callUsed;
+      pollBtn.disabled = pollUsed;
+      lifelineStatus.innerHTML = '<strong>Lifelines</strong>';
       nextBtn.disabled = true;
 
       const item = session[sessionIdx];
@@ -1118,6 +1230,7 @@
       tierText.textContent = 'Tier ' + item.tier;
       progressFill.style.width = (sessionIdx / session.length * 100) + '%';
       questionBox.textContent = item.q;
+      playQuestionIntro();
 
       const baseLetters = ['A','B','C','D'];
       currentCorrectLetter = item.correct;
@@ -1134,35 +1247,128 @@
       });
     }
 
+    function useFiftyFifty() {
+      if (fiftyUsed) return;
+
+      const allBtns = [...optionsGrid.children];
+      if (allBtns.length === 0) return;
+
+      const wrongLetters = allBtns
+        .map(b => b.dataset.letter)
+        .filter(letter => letter !== currentCorrectLetter && letter !== selectedLetter);
+
+      if (wrongLetters.length < 2) return;
+
+      const toRemove = shuffle(wrongLetters).slice(0, 2);
+      allBtns.forEach(btn => {
+        const shouldHide = toRemove.includes(btn.dataset.letter);
+        btn.disabled = shouldHide;
+        btn.style.visibility = shouldHide ? 'hidden' : 'visible';
+        btn.style.pointerEvents = shouldHide ? 'none' : 'auto';
+      });
+
+      fiftyUsed = true;
+      fiftyBtn.disabled = true;
+      lifelineStatus.innerHTML = '<strong>50-50</strong>Two wrong answers were removed.';
+    }
+
+    function useCallFriend() {
+      if (callUsed) return;
+
+      const letters = ['A', 'B', 'C', 'D'];
+      const weighted = letters.map(letter => {
+        const isCorrect = letter === currentCorrectLetter;
+        let weight = isCorrect ? 0.72 : 0.12;
+        if (selectedLetter && letter === selectedLetter) {
+          weight = isCorrect ? 0.78 : 0.2;
+        }
+        if (!isCorrect && letter !== selectedLetter) {
+          weight += Math.random() * 0.18;
+        }
+        return { letter, weight };
+      });
+
+      const best = weighted.sort((a, b) => b.weight - a.weight)[0];
+      callUsed = true;
+      callBtn.disabled = true;
+      lifelineStatus.innerHTML = '<strong>Call a Friend</strong>"I think it is ' + best.letter + '..."';
+    }
+
+    function useAudiencePoll() {
+      if (pollUsed) return;
+
+      const letterWeights = {};
+      const letters = ['A', 'B', 'C', 'D'];
+      letters.forEach(letter => {
+        if (letter === currentCorrectLetter) {
+          letterWeights[letter] = 0.56 + Math.random() * 0.22;
+        } else {
+          letterWeights[letter] = 0.08 + Math.random() * 0.22;
+        }
+      });
+
+      const total = Object.values(letterWeights).reduce((sum, val) => sum + val, 0);
+      const result = letters.map(letter => ({
+        letter,
+        percent: (letterWeights[letter] / total) * 100
+      })).sort((a, b) => b.percent - a.percent);
+
+      pollUsed = true;
+      pollBtn.disabled = true;
+      lifelineStatus.innerHTML = '<strong>Audience Poll</strong>' +
+        result.map(item => item.letter + ': ' + Math.round(item.percent) + '%').join(' • ');
+    }
+
     function revealAnswer() {
       const allBtns = [...optionsGrid.children];
       if (!allBtns.length) return;
-      if (allBtns.some(b => b.disabled)) return;
+      if (!answerLocked || !selectedLetter) return;
 
       const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
+      const selectedBtn = allBtns.find(b => b.dataset.letter === selectedLetter);
+      const isCorrect = selectedLetter === currentCorrectLetter;
+
+      if (selectedBtn) selectedBtn.classList.remove('locked');
       allBtns.forEach(b => b.disabled = true);
       if (correctBtn) correctBtn.classList.add('correct');
+      if (selectedBtn && !isCorrect) {
+        selectedBtn.classList.add('incorrect');
+      }
+
       revealBtn.disabled = true;
       nextBtn.disabled = false;
+      if (isCorrect) score++;
+      playAnswerSound(isCorrect);
+      stopTimer();
+    }
+
+    function lockAnswer() {
+      if (answerLocked || !selectedLetter) return;
+
+      const allBtns = [...optionsGrid.children];
+      if (!allBtns.length) return;
+
+      const selectedBtn = allBtns.find(b => b.dataset.letter === selectedLetter);
+      allBtns.forEach(b => b.disabled = true);
+      if (selectedBtn) {
+        selectedBtn.classList.add('locked');
+        selectedBtn.classList.remove('selected');
+      }
+      answerLocked = true;
+      lockBtn.disabled = true;
+      revealBtn.disabled = false;
     }
 
     function selectOption(letter, btnEl) {
       const allBtns = [...optionsGrid.children];
-      if (allBtns.some(b => b.disabled)) return; // already answered
-      allBtns.forEach(b => b.disabled = true);
+      if (answerLocked || btnEl.disabled || btnEl.style.visibility === 'hidden') return;
 
-      const correctBtn = allBtns.find(b => b.dataset.letter === currentCorrectLetter);
-      const isCorrect = letter === currentCorrectLetter;
-      if (correctBtn) correctBtn.classList.add('correct');
-      if (!isCorrect) {
-        btnEl.classList.add('incorrect');
-      } else {
-        score++;
-      }
-      playAnswerSound(isCorrect);
-      stopTimer();
-      revealBtn.disabled = true;
-      nextBtn.disabled = false;
+      selectedLetter = letter;
+      allBtns.forEach(b => {
+        if (b !== btnEl) b.classList.remove('selected');
+      });
+      btnEl.classList.add('selected');
+      lockBtn.disabled = false;
     }
 
     nextBtn.addEventListener('click', () => {
@@ -1171,6 +1377,10 @@
     });
 
     revealBtn.addEventListener('click', revealAnswer);
+    lockBtn.addEventListener('click', lockAnswer);
+    fiftyBtn.addEventListener('click', useFiftyFifty);
+    callBtn.addEventListener('click', useCallFriend);
+    pollBtn.addEventListener('click', useAudiencePoll);
 
     function showFinalScore() {
       quizArea.style.display = 'none';
@@ -1185,16 +1395,17 @@
       loadQuestion();
     });
 
-    /* ---------- independent 30s timer (always startable/stoppable) ---------- */
+    /* ---------- independent 32s timer (always startable/stoppable) ---------- */
     let timerInterval = null;
-    let timeLeft = 30;
+    let timeLeft = 32;
 
     function stopTimer() {
       if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
       }
-      timeLeft = 30;
+      stopTickSound();
+      timeLeft = 32;
       timerCircle.textContent = timeLeft;
       timerCircle.classList.remove('running', 'warning');
       timerBtn.disabled = false;
@@ -1203,7 +1414,9 @@
 
     function startTimer() {
       if (timerInterval !== null) return;
-      timeLeft = 30;
+      unlockAudio();
+      playTickSound();
+      timeLeft = 32;
       timerCircle.textContent = timeLeft;
       timerCircle.classList.remove('warning');
       timerCircle.classList.add('running');
@@ -1216,6 +1429,7 @@
           timerCircle.textContent = '0';
           clearInterval(timerInterval);
           timerInterval = null;
+          stopTickSound();
           timerBtn.disabled = false;
           timerBtn.textContent = 'Start Timer';
           timerCircle.classList.remove('running');
@@ -1228,7 +1442,13 @@
       }, 1000);
     }
 
-    timerBtn.addEventListener('click', startTimer);
+    timerBtn.addEventListener('click', () => {
+      unlockAudio();
+      startTimer();
+    });
+    document.addEventListener('pointerdown', unlockAudio, { once: true });
+    document.addEventListener('keydown', unlockAudio, { once: true });
+    optionsGrid.addEventListener('click', unlockAudio, { capture: true });
 
     /* ---------- init ---------- */
     buildSession();
