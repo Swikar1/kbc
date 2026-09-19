@@ -1112,14 +1112,50 @@
     let fiftyUsed = false;
     let callUsed = false;
     let pollUsed = false;
-    const correctAnswerAudio = new Audio('./' + encodeURIComponent('7 CRORE KBC - SOUND EFFECT [fl6xbIdBSic].mp3'));
+    const finalQuestionAudio = new Audio('./' + encodeURIComponent('7 CRORE KBC - SOUND EFFECT [fl6xbIdBSic].mp3'));
+
+    function playTone({ frequency, duration, type, volume, sweepTo }) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.type = type || 'sine';
+      oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+      if (sweepTo) {
+        oscillator.frequency.exponentialRampToValueAtTime(sweepTo, ctx.currentTime + duration);
+      }
+
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(volume || 0.12, ctx.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + duration + 0.02);
+      oscillator.onended = () => ctx.close();
+    }
 
     function playAnswerSound(isCorrect) {
-      if (!isCorrect) return;
-      correctAnswerAudio.pause();
-      correctAnswerAudio.currentTime = 0;
-      correctAnswerAudio.volume = 1;
-      correctAnswerAudio.play().catch(() => {});
+      const isFinalQuestion = sessionIdx === session.length - 1;
+
+      if (isFinalQuestion && isCorrect) {
+        finalQuestionAudio.pause();
+        finalQuestionAudio.currentTime = 0;
+        finalQuestionAudio.volume = 1;
+        finalQuestionAudio.play().catch(() => {});
+        return;
+      }
+
+      if (isCorrect) {
+        playTone({ frequency: 660, duration: 0.23, type: 'triangle', volume: 0.12, sweepTo: 880 });
+        return;
+      }
+
+      playTone({ frequency: 220, duration: 0.25, type: 'sawtooth', volume: 0.09, sweepTo: 120 });
     }
 
     const BONUS_HARD_QUESTIONS = [
